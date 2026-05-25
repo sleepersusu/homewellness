@@ -4,6 +4,7 @@ import streamlit as st
 from pathlib import Path
 from dotenv import load_dotenv
 from agent.health_agent import build_agent, invoke_agent
+from agent.llm_factory import AVAILABLE_MODELS
 from data.mock_sensors import (
     get_mock_vitals,
     get_mock_sleep_report,
@@ -18,10 +19,44 @@ st.set_page_config(
     layout="wide",
 )
 
+# ── Sidebar：模型選擇 ──────────────────────────────────
+with st.sidebar:
+    st.header("⚙️ 模型設定")
+    care_model = st.selectbox(
+        "🤖 CareAgent（主對話）",
+        AVAILABLE_MODELS,
+        index=AVAILABLE_MODELS.index("gpt-4o-mini"),
+        key="care_model",
+    )
+    analysis_model = st.selectbox(
+        "🧪 AnalysisAgent（趨勢分析）",
+        AVAILABLE_MODELS,
+        index=AVAILABLE_MODELS.index("gemini-2.5-flash"),
+        key="analysis_model",
+    )
+    alert_model = st.selectbox(
+        "🚨 AlertAgent（緊急通報）",
+        AVAILABLE_MODELS,
+        index=AVAILABLE_MODELS.index("gpt-4o-mini"),
+        key="alert_model",
+    )
+
+    model_key = f"{care_model}|{analysis_model}|{alert_model}"
+    if st.session_state.get("model_key") != model_key:
+        st.session_state.model_key = model_key
+        st.session_state.pop("agent", None)
+        st.session_state.messages = []
+
+    st.caption("變更模型後自動重建 Agent 並清除對話記錄")
+
 # ── Session State Init ────────────────────────────────
 if "agent" not in st.session_state:
-    with st.spinner("載入 AI 健康伴侶..."):
-        st.session_state.agent = build_agent()
+    with st.spinner(f"載入 AI 健康伴侶（{care_model} / {analysis_model} / {alert_model}）..."):
+        st.session_state.agent = build_agent(
+            care_model=care_model,
+            analysis_model=analysis_model,
+            alert_model=alert_model,
+        )
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "simulate_abnormal" not in st.session_state:

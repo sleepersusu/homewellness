@@ -1,17 +1,19 @@
 # agent/analysis_agent.py
 from dotenv import load_dotenv
-from langchain_anthropic import ChatAnthropic
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
+from agent.llm_factory import get_llm
 from agent.tools import get_health_trend
 from agent.prompts import build_analysis_prompt
 
 load_dotenv()
 
+DEFAULT_MODEL = "gemini-2.5-flash"
 
-def build_analysis_agent():
-    """Build the AnalysisAgent using Claude (smart model for data reasoning)."""
-    llm = ChatAnthropic(model="claude-sonnet-4-6", temperature=0)
+
+def build_analysis_agent(model: str = DEFAULT_MODEL):
+    """Build the AnalysisAgent with the given model (default: gemini-2.5-flash)."""
+    llm = get_llm(model)
     return create_agent(llm, tools=[get_health_trend], system_prompt=build_analysis_prompt())
 
 
