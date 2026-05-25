@@ -1,0 +1,57 @@
+import pytest
+from data.mock_sensors import (
+    get_mock_vitals,
+    get_mock_sleep_report,
+    get_mock_health_history,
+    set_simulate_abnormal,
+)
+
+
+def test_get_mock_vitals_schema():
+    """Test that mock vitals have all required keys."""
+    vitals = get_mock_vitals()
+    assert "heart_rate" in vitals
+    assert "spo2" in vitals
+    assert "temperature" in vitals
+    assert "timestamp" in vitals
+
+
+def test_get_mock_vitals_normal_ranges():
+    """Test that normal mode vitals fall within expected ranges."""
+    set_simulate_abnormal(False)
+    for _ in range(20):
+        v = get_mock_vitals()
+        assert 50 <= v["heart_rate"] <= 120
+        assert 90 <= v["spo2"] <= 100
+
+
+def test_get_mock_vitals_abnormal_mode():
+    """Test that abnormal mode produces out-of-range vitals."""
+    set_simulate_abnormal(True)
+    v = get_mock_vitals()
+    assert v["heart_rate"] > 120 or v["spo2"] < 90
+    set_simulate_abnormal(False)  # cleanup
+
+
+def test_get_mock_sleep_report_schema():
+    """Test that mock sleep report has all required keys."""
+    report = get_mock_sleep_report()
+    assert "total_hours" in report
+    assert "deep_sleep_hours" in report
+    assert "wake_count" in report
+    assert "date" in report
+
+
+def test_get_mock_health_history_length():
+    """Test that health history returns correct number of days."""
+    assert len(get_mock_health_history(7)) == 7
+    assert len(get_mock_health_history(30)) == 30
+
+
+def test_get_mock_health_history_schema():
+    """Test that health history records have all required keys."""
+    for record in get_mock_health_history(3):
+        assert "date" in record
+        assert "heart_rate_avg" in record
+        assert "spo2_avg" in record
+        assert "sleep_hours" in record

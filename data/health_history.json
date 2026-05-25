@@ -1,0 +1,182 @@
+[
+  {
+    "date": "2026-05-25",
+    "heart_rate_avg": 73,
+    "spo2_avg": 96,
+    "sleep_hours": 6.6
+  },
+  {
+    "date": "2026-05-24",
+    "heart_rate_avg": 77,
+    "spo2_avg": 98,
+    "sleep_hours": 7.6
+  },
+  {
+    "date": "2026-05-23",
+    "heart_rate_avg": 75,
+    "spo2_avg": 98,
+    "sleep_hours": 6.6
+  },
+  {
+    "date": "2026-05-22",
+    "heart_rate_avg": 79,
+    "spo2_avg": 96,
+    "sleep_hours": 6.7
+  },
+  {
+    "date": "2026-05-21",
+    "heart_rate_avg": 75,
+    "spo2_avg": 97,
+    "sleep_hours": 7.2
+  },
+  {
+    "date": "2026-05-20",
+    "heart_rate_avg": 72,
+    "spo2_avg": 99,
+    "sleep_hours": 7.3
+  },
+  {
+    "date": "2026-05-19",
+    "heart_rate_avg": 81,
+    "spo2_avg": 96,
+    "sleep_hours": 5.7
+  },
+  {
+    "date": "2026-05-18",
+    "heart_rate_avg": 81,
+    "spo2_avg": 97,
+    "sleep_hours": 6.8
+  },
+  {
+    "date": "2026-05-17",
+    "heart_rate_avg": 81,
+    "spo2_avg": 99,
+    "sleep_hours": 7.6
+  },
+  {
+    "date": "2026-05-16",
+    "heart_rate_avg": 76,
+    "spo2_avg": 95,
+    "sleep_hours": 7.2
+  },
+  {
+    "date": "2026-05-15",
+    "heart_rate_avg": 69,
+    "spo2_avg": 97,
+    "sleep_hours": 6.6
+  },
+  {
+    "date": "2026-05-14",
+    "heart_rate_avg": 68,
+    "spo2_avg": 95,
+    "sleep_hours": 5.7
+  },
+  {
+    "date": "2026-05-13",
+    "heart_rate_avg": 75,
+    "spo2_avg": 99,
+    "sleep_hours": 6.9
+  },
+  {
+    "date": "2026-05-12",
+    "heart_rate_avg": 68,
+    "spo2_avg": 97,
+    "sleep_hours": 7.3
+  },
+  {
+    "date": "2026-05-11",
+    "heart_rate_avg": 72,
+    "spo2_avg": 97,
+    "sleep_hours": 6.0
+  },
+  {
+    "date": "2026-05-10",
+    "heart_rate_avg": 80,
+    "spo2_avg": 95,
+    "sleep_hours": 7.1
+  },
+  {
+    "date": "2026-05-09",
+    "heart_rate_avg": 76,
+    "spo2_avg": 98,
+    "sleep_hours": 7.9
+  },
+  {
+    "date": "2026-05-08",
+    "heart_rate_avg": 73,
+    "spo2_avg": 96,
+    "sleep_hours": 6.6
+  },
+  {
+    "date": "2026-05-07",
+    "heart_rate_avg": 77,
+    "spo2_avg": 95,
+    "sleep_hours": 6.5
+  },
+  {
+    "date": "2026-05-06",
+    "heart_rate_avg": 68,
+    "spo2_avg": 95,
+    "sleep_hours": 6.8
+  },
+  {
+    "date": "2026-05-05",
+    "heart_rate_avg": 76,
+    "spo2_avg": 95,
+    "sleep_hours": 7.2
+  },
+  {
+    "date": "2026-05-04",
+    "heart_rate_avg": 71,
+    "spo2_avg": 98,
+    "sleep_hours": 7.5
+  },
+  {
+    "date": "2026-05-03",
+    "heart_rate_avg": 75,
+    "spo2_avg": 98,
+    "sleep_hours": 7.2
+  },
+  {
+    "date": "2026-05-02",
+    "heart_rate_avg": 82,
+    "spo2_avg": 95,
+    "sleep_hours": 5.8
+  },
+  {
+    "date": "2026-05-01",
+    "heart_rate_avg": 72,
+    "spo2_avg": 96,
+    "sleep_hours": 7.6
+  },
+  {
+    "date": "2026-04-30",
+    "heart_rate_avg": 82,
+    "spo2_avg": 99,
+    "sleep_hours": 6.2
+  },
+  {
+    "date": "2026-04-29",
+    "heart_rate_avg": 70,
+    "spo2_avg": 98,
+    "sleep_hours": 7.8
+  },
+  {
+    "date": "2026-04-28",
+    "heart_rate_avg": 71,
+    "spo2_avg": 99,
+    "sleep_hours": 8.0
+  },
+  {
+    "date": "2026-04-27",
+    "heart_rate_avg": 81,
+    "spo2_avg": 95,
+    "sleep_hours": 5.7
+  },
+  {
+    "date": "2026-04-26",
+    "heart_rate_avg": 74,
+    "spo2_avg": 98,
+    "sleep_hours": 5.8
+  }
+]

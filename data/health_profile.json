@@ -1,0 +1,18 @@
+{
+  "name": "陳阿嬤",
+  "age": 72,
+  "conditions": ["高血壓", "輕度糖尿病"],
+  "medications": [
+    {"name": "降血壓藥（Amlodipine 5mg）", "time": "08:00", "with_meal": true},
+    {"name": "維生素D", "time": "13:00", "with_meal": true},
+    {"name": "Metformin 500mg", "time": "19:00", "with_meal": true}
+  ],
+  "emergency_contacts": [
+    {"name": "陳大文（兒子）", "phone": "0912-345-678"}
+  ],
+  "alert_thresholds": {
+    "heart_rate_high": 120,
+    "heart_rate_low": 50,
+    "spo2_low": 90
+  }
+}
