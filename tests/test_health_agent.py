@@ -1,14 +1,19 @@
 # tests/test_health_agent.py
 from unittest.mock import patch, MagicMock
 
+
 def test_build_agent_returns_agent_with_memory():
-    with patch("agent.health_agent.ChatAnthropic") as mock_llm_cls:
+    # Sub-agents are lazy-imported inside build_agent(), so patch at source modules
+    with patch("agent.health_agent.ChatOpenAI") as mock_llm_cls, \
+         patch("agent.health_agent.create_agent") as mock_create, \
+         patch("agent.analysis_agent.build_analysis_agent", return_value=MagicMock()), \
+         patch("agent.alert_agent.build_alert_agent", return_value=MagicMock()):
         mock_llm_cls.return_value = MagicMock()
-        with patch("agent.health_agent.create_agent") as mock_create:
-            mock_create.return_value = MagicMock()
-            from agent.health_agent import build_agent
-            agent = build_agent()
-            assert agent is not None
+        mock_create.return_value = MagicMock()
+        from agent.health_agent import build_agent
+        agent = build_agent()
+        assert agent is not None
+
 
 def test_invoke_agent_returns_string():
     mock_agent = MagicMock()
