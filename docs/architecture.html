@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeWellness — 系統架構</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0f1117;
+  color: #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 28px 28px 48px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ── Typography ─────────────────── */
+h1 { font-size: 1.35em; font-weight: 800; letter-spacing: -.02em; }
+.subtitle { font-size: .8em; opacity: .45; margin-top: 2px; margin-bottom: 28px; }
+.layer-label {
+  font-size: .65em; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .1em; opacity: .35; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.layer-label::after {
+  content: ""; flex: 1; height: 1px; background: rgba(255,255,255,.07);
+}
+.layer-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,.08); font-size: .85em; opacity: 1;
+  font-weight: 900; color: rgba(255,255,255,.35);
+}
+code {
+  background: rgba(255,255,255,.08); border-radius: 4px;
+  padding: 1px 5px; font-size: .88em;
+  font-family: "SF Mono","Fira Code",monospace;
+}
+.mono { font-family: "SF Mono","Fira Code",monospace; font-size: .85em; }
+
+/* ── Cards ─────────────────────── */
+.card {
+  border-radius: 10px; padding: 12px 14px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
+}
+.card-title { font-weight: 700; font-size: .82em; margin-bottom: 5px; }
+.card-body { font-size: .75em; opacity: .65; line-height: 1.65; }
+
+/* ── Row / Grid helpers ─────────── */
+.row { display: flex; gap: 10px; align-items: stretch; }
+.col { flex: 1; }
+.center { display: flex; align-items: center; justify-content: center; }
+
+/* ── Connectors ─────────────────── */
+.arrow-down {
+  text-align: center; padding: 7px 0;
+  color: rgba(255,255,255,.2); font-size: .85em; letter-spacing: .03em;
+}
+.arrow-right { color: rgba(255,255,255,.2); font-size: .9em; padding: 0 6px; flex-shrink: 0; }
+
+/* ── Badges ─────────────────────── */
+.tag {
+  display: inline-block; font-size: .63em; font-weight: 700;
+  border-radius: 4px; padding: 2px 6px; white-space: nowrap; vertical-align: middle;
+}
+.t-sky     { background: rgba(14,165,233,.18);  color: #7dd3fc; }
+.t-indigo  { background: rgba(99,102,241,.18);  color: #a5b4fc; }
+.t-violet  { background: rgba(139,92,246,.18);  color: #c4b5fd; }
+.t-emerald { background: rgba(16,185,129,.18);  color: #6ee7b7; }
+.t-amber   { background: rgba(245,158,11,.18);  color: #fbbf24; }
+.t-red     { background: rgba(239,68,68,.18);   color: #fca5a5; }
+.t-orange  { background: rgba(249,115,22,.18);  color: #fdba74; }
+.t-slate   { background: rgba(100,116,139,.18); color: #cbd5e1; }
+
+/* ── Section spacing ─────────────── */
+.section { margin-bottom: 6px; }
+.gap-sm { margin-top: 6px; }
+.gap-md { margin-top: 10px; }
+
+/* ── Agent block ─────────────────── */
+.agent-block {
+  border-radius: 12px; padding: 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.agent-header { display: flex; align-items: flex-start; gap: 8px; }
+.agent-icon { font-size: 1.3em; flex-shrink: 0; }
+.agent-name { font-weight: 800; font-size: .88em; }
+.agent-file { font-size: .7em; opacity: .45; margin-top: 1px; }
+.agent-desc { font-size: .74em; opacity: .65; line-height: 1.55; }
+.tool-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px; padding: 3px 8px; font-size: .7em;
+  font-family: "SF Mono","Fira Code",monospace;
+}
+
+/* ── Flow diagram (agent relations) ─ */
+.flow-row {
+  display: grid;
+  grid-template-columns: 1fr 48px 1fr 48px 1fr;
+  gap: 0; align-items: center;
+}
+.flow-connector {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px;
+  font-size: .75em; color: rgba(255,255,255,.25);
+}
+.flow-label { font-size: .6em; opacity: .6; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>🏥 HomeWellness Companion</h1>
+<p class="subtitle">系統架構全覽 · IoT → Trigger → Multi-Agent → UI</p>
+
+<!-- ══════════════════════════════════════════════
+     LAYER 1 — IoT
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="layer-label"><span class="layer-num">1</span> IoT 資料層</div>
+  <div class="row">
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:10px 6px">
+      <div style="font-size:1.3em">💓</div>
+      <div style="font-size:.75em;font-weight:700">心率</div>
+      <div style="font-size:.65em;opacity:.45">65–85 bpm</div>
+    </div>
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:10px 6px">
+      <div style="font-size:1.3em">🩸</div>
+      <div style="font-size:.75em;font-weight:700">血氧 SpO2</div>
+      <div style="font-size:.65em;opacity:.45">95–99 %</div>
+    </div>
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:10px 6px">
+      <div style="font-size:1.3em">😴</div>
+      <div style="font-size:.75em;font-weight:700">睡眠品質</div>
+      <div style="font-size:.65em;opacity:.45">5.5–8 hrs</div>
+    </div>
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:10px 6px">
+      <div style="font-size:1.3em">🌡️</div>
+      <div style="font-size:.75em;font-weight:700">環境溫度</div>
+      <div style="font-size:.65em;opacity:.45">25–27 °C</div>
+    </div>
+    <div class="card" style="flex:1.8;background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2)">
+      <div class="card-title" style="color:#fbbf24">data/mock_sensors.py</div>
+      <div class="card-body">
+        <code>get_mock_vitals()</code><br>
+        <code>get_mock_sleep_report()</code><br>
+        <code>get_mock_health_history(days)</code><br>
+        <code>set_simulate_abnormal(bool)</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow-down">↓ &nbsp;APScheduler 每 5 秒輪詢 &nbsp;|&nbsp; 正式架構：MQTT → AWS IoT Core &nbsp;↓</div>
+
+<!-- ══════════════════════════════════════════════
+     LAYER 2 — Trigger
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="layer-label"><span class="layer-num">2</span> 主動觸發層</div>
+  <div class="row">
+
+    <div class="card col" style="background:rgba(14,165,233,.06);border-color:rgba(14,165,233,.2)">
+      <div class="card-title" style="color:#7dd3fc">⏰ APScheduler 心跳</div>
+      <div class="card-body">
+        <code>BackgroundScheduler</code> 每 5 秒<br>
+        讀取 <code>get_mock_vitals()</code><br>
+        異常 → 寫 <code>pending_proactive</code><br>
+        → <code>st.rerun()</code> 觸發更新
+      </div>
+    </div>
+
+    <div class="card col" style="background:rgba(99,102,241,.06);border-color:rgba(99,102,241,.2)">
+      <div class="card-title" style="color:#a5b4fc">📅 Cron 定時觸發</div>
+      <div class="card-body">
+        08:00 — 早安問候<br>
+        飯後 — 用藥提醒<br>
+        21:00 — 晚安關懷<br>
+        <span style="opacity:.4">（Demo 按鈕手動模擬）</span>
+      </div>
+    </div>
+
+    <div class="card col" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2)">
+      <div class="card-title" style="color:#6ee7b7">💬 對話意圖觸發</div>
+      <div class="card-body">
+        長者說「頭暈」「不舒服」<br>
+        → CareAgent 判斷意圖<br>
+        → 呼叫對應工具或子代理
+      </div>
+    </div>
+
+    <div class="card col" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2)">
+      <div class="card-title" style="color:#fca5a5">🚨 數值異常觸發</div>
+      <div class="card-body">
+        心率 &gt; 120 bpm<br>
+        心率 &lt; 50 bpm<br>
+        血氧 &lt; 90 %<br>
+        → 自動觸發 AlertAgent
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="arrow-down">↓ &nbsp;觸發訊號進入 CareAgent &nbsp;↓</div>
+
+<!-- ══════════════════════════════════════════════
+     LAYER 3 — Multi-Agent
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="layer-label"><span class="layer-num">3</span> Multi-Agent 層</div>
+
+  <div class="flow-row">
+
+    <!-- CareAgent -->
+    <div class="agent-block" style="background:rgba(99,102,241,.1);border:2px solid rgba(99,102,241,.35)">
+      <div class="agent-header">
+        <div class="agent-icon">🤖</div>
+        <div>
+          <div class="agent-name">CareAgent &nbsp;<span class="tag t-indigo">Orchestrator</span></div>
+          <div class="agent-file">health_agent.py</div>
+        </div>
+        <span class="tag t-sky" style="margin-left:auto">gpt-4o-mini</span>
+      </div>
+      <div class="agent-desc">
+        主對話 · 工具決策 · 子代理協調<br>
+        有 session 記憶（<code>_AgentWithMemory</code>）
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:2px">
+        <span class="tool-chip">🔧 get_vitals</span>
+        <span class="tool-chip">😴 get_sleep_report</span>
+        <span class="tool-chip">💊 get_medication_schedule</span>
+      </div>
+    </div>
+
+    <!-- Arrows to sub-agents -->
+    <div style="display:flex;flex-direction:column;justify-content:space-around;height:100%;padding:4px 0">
+      <div class="flow-connector">
+        <div>→</div>
+        <div class="flow-label">趨勢分析<br>call_analysis_agent</div>
+      </div>
+      <div style="border-top:1px dashed rgba(255,255,255,.07);margin:4px 0"></div>
+      <div class="flow-connector">
+        <div>→</div>
+        <div class="flow-label">緊急通報<br>call_alert_agent</div>
+      </div>
+    </div>
+
+    <!-- Sub-agents column -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+
+      <!-- AnalysisAgent -->
+      <div class="agent-block" style="background:rgba(139,92,246,.1);border:2px solid rgba(139,92,246,.3)">
+        <div class="agent-header">
+          <div class="agent-icon">🧪</div>
+          <div>
+            <div class="agent-name">AnalysisAgent</div>
+            <div class="agent-file">analysis_agent.py</div>
+          </div>
+          <span class="tag t-violet" style="margin-left:auto">claude-sonnet-4-6</span>
+        </div>
+        <div class="agent-desc">深度趨勢分析 · 異常模式識別 · 數據建議<br>無記憶（stateless）</div>
+        <div><span class="tool-chip">📈 get_health_trend(days)</span></div>
+      </div>
+
+      <!-- AlertAgent -->
+      <div class="agent-block" style="background:rgba(239,68,68,.08);border:2px solid rgba(239,68,68,.3)">
+        <div class="agent-header">
+          <div class="agent-icon">🚨</div>
+          <div>
+            <div class="agent-name">AlertAgent</div>
+            <div class="agent-file">alert_agent.py</div>
+          </div>
+          <span class="tag t-sky" style="margin-left:auto">gpt-4o-mini</span>
+        </div>
+        <div class="agent-desc">緊急數值評估 · 通報決策 · 低延遲執行<br>無記憶（stateless）</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          <span class="tool-chip">🔧 get_vitals</span>
+          <span class="tool-chip">📞 send_emergency_alert</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right spacer -->
+    <div></div>
+    <div></div>
+
+  </div>
+</div>
+
+<div class="arrow-down">↓ &nbsp;session 記憶 + 病患資料 &nbsp;↓</div>
+
+<!-- ══════════════════════════════════════════════
+     LAYER 4 — Memory
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="layer-label"><span class="layer-num">4</span> 記憶層</div>
+  <div class="row">
+
+    <div class="card col" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2)">
+      <div class="card-title" style="color:#6ee7b7">🧠 短期記憶（Session）</div>
+      <div class="card-body">
+        <code>InMemoryChatMessageHistory</code><br>
+        <code>_AgentWithMemory</code> wrapper<br>
+        <code>session_id</code> 隔離多用戶<br>
+        tests 自動清除（conftest.py autouse）
+      </div>
+    </div>
+
+    <div class="card col" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2)">
+      <div class="card-title" style="color:#6ee7b7">📂 病患靜態資料</div>
+      <div class="card-body">
+        <code>data/health_profile.json</code><br>
+        姓名、年齡、慢性病史<br>
+        用藥計畫（3 種藥）<br>
+        緊急聯絡人 + 警報閾值
+      </div>
+    </div>
+
+    <div class="card col" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.2)">
+      <div class="card-title" style="color:#6ee7b7">📊 歷史生理數據</div>
+      <div class="card-body">
+        <code>data/health_history.json</code><br>
+        近 30 天每日平均<br>
+        heart_rate_avg / spo2_avg<br>
+        sleep_hours
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="arrow-down">↓ &nbsp;回應文字 &nbsp;↓</div>
+
+<!-- ══════════════════════════════════════════════
+     LAYER 5 — UI
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="layer-label"><span class="layer-num">5</span> 使用者介面層（Streamlit · app.py）</div>
+  <div class="row">
+
+    <div class="card col" style="background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25)">
+      <div class="card-title" style="color:#6ee7b7">📊 左欄 — 即時數據面板</div>
+      <div class="card-body">
+        <code>st.columns([1, 2])</code> 分左右<br><br>
+        💓 心率 / 🩸 血氧 / 😴 睡眠 / 🌡️ 溫度<br>
+        超閾值顯示 <code>⚠️ 異常</code> 標籤<br><br>
+        💊 今日用藥時間表<br><br>
+        🎮 Demo 控制台<br>
+        &nbsp;&nbsp;🌅 早晨問候 / 🚨 心率異常 / 🔄 恢復
+      </div>
+    </div>
+
+    <div class="card" style="flex:2;background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25)">
+      <div class="card-title" style="color:#6ee7b7">💬 右欄 — 健康對話視窗</div>
+      <div class="card-body">
+        <code>st.container(height=520)</code> — 捲動對話歷史<br>
+        <code>st.chat_message(role)</code> — 區分 user / assistant<br>
+        <code>st.chat_input(...)</code> — 長者輸入欄<br><br>
+        <strong>主動觸發機制：</strong><br>
+        <code>pending_proactive</code> → APScheduler 寫入<br>
+        → 頁面頂部攔截 → <code>invoke_agent()</code><br>
+        → <code>st.rerun()</code> 插入 Agent 主動訊息
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="arrow-down">↓ &nbsp;SNS 推播 / 家屬 App（正式架構）&nbsp;↓</div>
+
+<!-- ══════════════════════════════════════════════
+     LAYER 6 — AWS Production
+══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="layer-label"><span class="layer-num">6</span> 正式 AWS 架構（簡報說明用）</div>
+  <div class="row" style="align-items:center">
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:9px 6px;background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.2)">
+      <div>📡</div><div style="font-size:.72em;font-weight:700">IoT 手環</div>
+      <div style="font-size:.62em;opacity:.45">MQTT</div>
+    </div>
+    <div class="arrow-right">→</div>
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:9px 6px;background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.2)">
+      <div>☁️</div><div style="font-size:.72em;font-weight:700">IoT Core</div>
+      <div style="font-size:.62em;opacity:.45">Rule Engine</div>
+    </div>
+    <div class="arrow-right">→</div>
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:9px 6px;background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.2)">
+      <div>λ</div><div style="font-size:.72em;font-weight:700">Lambda</div>
+      <div style="font-size:.62em;opacity:.45">數據處理</div>
+    </div>
+    <div class="arrow-right">→</div>
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:9px 6px;background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.2)">
+      <div>🗄️</div><div style="font-size:.72em;font-weight:700">DynamoDB</div>
+      <div style="font-size:.62em;opacity:.45">健康記憶</div>
+    </div>
+    <div class="arrow-right">→</div>
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:9px 6px;background:rgba(249,115,22,.06);border-color:rgba(249,115,22,.2)">
+      <div>🔌</div><div style="font-size:.72em;font-weight:700">API Gateway</div>
+      <div style="font-size:.62em;opacity:.45">Agent 入口</div>
+    </div>
+    <div class="arrow-right">→</div>
+    <div class="card center" style="flex:1.5;flex-direction:column;gap:3px;text-align:center;padding:9px 6px;background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.3)">
+      <div>🤖</div><div style="font-size:.72em;font-weight:700">Agent Service</div>
+      <div style="font-size:.62em;opacity:.45">ECS / Lambda</div>
+    </div>
+    <div class="arrow-right">→</div>
+    <div class="card col center" style="flex-direction:column;gap:3px;text-align:center;padding:9px 6px;background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2)">
+      <div>📱</div><div style="font-size:.72em;font-weight:700">SNS 推播</div>
+      <div style="font-size:.62em;opacity:.45">家屬通報</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TECH STACK
+══════════════════════════════════════════════ -->
+<div style="margin-top:16px;padding:12px 16px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:10px">
+  <div class="layer-label" style="margin-bottom:9px"><span class="layer-num">∑</span> 技術棧</div>
+  <div style="display:flex;flex-wrap:wrap;gap:5px">
+    <span class="tag t-sky">LangChain 1.3.1</span>
+    <span class="tag t-sky">langchain-openai</span>
+    <span class="tag t-violet">langchain-anthropic</span>
+    <span class="tag t-sky">GPT-4o-mini</span>
+    <span class="tag t-violet">Claude Sonnet 4.6</span>
+    <span class="tag t-emerald">Streamlit 1.57</span>
+    <span class="tag t-amber">APScheduler 3.11</span>
+    <span class="tag t-indigo">InMemoryChatMessageHistory</span>
+    <span class="tag t-indigo">_AgentWithMemory</span>
+    <span class="tag t-slate">pytest · 31 tests</span>
+    <span class="tag t-red">Langflow（視覺化）</span>
+    <span class="tag t-orange">AWS IoT Core</span>
+    <span class="tag t-orange">DynamoDB · Lambda · SNS</span>
+  </div>
+</div>
+
+</body>
+</html>

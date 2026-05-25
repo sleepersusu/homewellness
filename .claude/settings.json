@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"import sys,json;d=json.load(sys.stdin);s=d.get('tool_input',{}).get('skill','');r={'hookSpecificOutput':{'hookEventName':'PostToolUse','additionalContext':'opsx:archive 已完成。請依本次實作內容，檢查並更新受影響的 MD 文件：(1) .claude/rules/ 下的規範文件（如 workflow.md、testing.md、architecture.md）；(2) .claude/reference/ 下的技術參考文件（如 models.md、services.md、celery-tasks.md、frontend-components.md）。'}};print(json.dumps(r) if 'archive' in s else '{}')\""
+          }
+        ]
+      }
+    ]
+  }
+}
