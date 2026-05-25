@@ -45,19 +45,23 @@ class _AgentWithMemory:
         session_id = (config.get("configurable") or {}).get("session_id", "default")
         history = get_session_history(session_id)
 
-        # Inject chat history into inputs
-        enriched = dict(inputs)
-        enriched["chat_history"] = history.messages
-
-        result = self._executor.invoke(enriched, config=config)
-
-        # Persist the exchange into history
         user_input = inputs.get("input", "")
-        output = result.get("output", "") if isinstance(result, dict) else str(result)
+
+        # Build messages list: history + new human message
+        messages = list(history.messages) + [HumanMessage(content=user_input)]
+
+        # Invoke the langgraph agent with messages format
+        result = self._executor.invoke({"messages": messages}, config=config)
+
+        # Extract output from last AI message
+        last = result["messages"][-1]
+        output = last.content if hasattr(last, "content") else str(last)
+
+        # Persist exchange to history
         history.add_message(HumanMessage(content=user_input))
         history.add_message(AIMessage(content=output))
 
-        return result
+        return {"output": output}
 
 
 def wrap_with_memory(runnable) -> _AgentWithMemory:
