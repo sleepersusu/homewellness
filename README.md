@@ -22,8 +22,9 @@ streamlit run app.py
 |------|------|---------|
 | 1 | 點擊「🌅 模擬早晨問候」 | 主動觸發 + 長期記憶（姓名、病史） |
 | 2 | 輸入「我今天頭有點暈」 | Tool Calling → get_vitals() |
-| 3 | 點擊「🚨 模擬心率異常」 | 閾值觸發 → AlertAgent → send_emergency_alert() |
+| 3 | 場景選「心跳過快」→ 等 5 秒 | APScheduler 閾值觸發 → AlertAgent → send_emergency_alert() |
 | 4 | 輸入「這週健康狀況怎麼樣？」 | CareAgent 委派 → AnalysisAgent → get_health_trend(7) |
+| 5 | 場景選「自訂」→ 拖動 slider | 即時調整 HR / SpO2 / 溫度，觀察 metric 狀態切換 |
 
 ## 技術架構
 
@@ -42,6 +43,9 @@ CareAgent（首腦 · 預設 gpt-4o-mini）
 - **模型可切換**：Streamlit sidebar 可即時選擇每個 Agent 的模型，支援 OpenAI / Gemini
 - **Memory**：`_AgentWithMemory` + `InMemoryChatMessageHistory`（CareAgent 的 session 記憶）
 - **主動觸發**：APScheduler 背景心跳（每 5 秒輪詢感測數據）
+- **動態場景模擬**：UI 直接切換正常 / 心跳過快 / 心跳過慢 / 低血氧 / 自訂 slider
+- **警報閾值提示**：左欄頂部分組顯示心率與血氧的警報邊界值
+- **用藥時間編輯**：可在 UI 即時調整每筆藥的服藥時間，支援重置
 - **UI**：Streamlit 左右分欄（數據面板 + 對話視窗）
 
 ## 專案結構
@@ -75,7 +79,11 @@ OPENAI_API_KEY=sk-...         # CareAgent + AlertAgent（gpt-4o-mini / gpt-4o）
 GOOGLE_API_KEY=...            # AnalysisAgent（gemini-2.5-flash / gemini-2.5-pro 等）
 ```
 
-> 模型在 Streamlit sidebar 即時切換，不需重啟。支援模型：`gpt-4o-mini`、`gpt-4o`、`gemini-2.5-flash`、`gemini-2.5-pro`、`gemini-2.0-flash`
+> 模型在 Streamlit sidebar 即時切換，不需重啟。
+>
+> **OpenAI**：`gpt-4o-mini`、`gpt-4o`、`gpt-4.1-mini`、`gpt-4.1`、`gpt-5.4-mini`、`gpt-5`
+>
+> **Gemini**：`gemini-2.5-flash-lite`、`gemini-2.5-flash`、`gemini-2.5-pro`、`gemini-3.1-flash-lite`、`gemini-3.1-pro-preview`、`gemini-3.5-flash`
 
 ## AWS 正式架構（簡報說明）
 
