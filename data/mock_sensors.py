@@ -4,25 +4,37 @@ import random
 from datetime import datetime, timedelta
 
 _simulate_abnormal: bool = False
+_vitals_override: dict | None = None
 
 
 def set_simulate_abnormal(value: bool) -> None:
-    """Set whether to simulate abnormal vital signs.
-
-    Args:
-        value: True to simulate abnormal readings, False for normal ranges.
-    """
+    """Set whether to simulate abnormal vital signs."""
     global _simulate_abnormal
     _simulate_abnormal = value
+
+
+def set_vitals_override(values: dict | None) -> None:
+    """Override specific vitals values. Pass None to clear.
+
+    Args:
+        values: dict with optional keys heart_rate, spo2, temperature.
+    """
+    global _vitals_override
+    _vitals_override = values
 
 
 def get_mock_vitals() -> dict[str, int | float | str]:
     """Get mock vital signs readings.
 
-    Returns:
-        Dictionary with heart_rate, spo2, temperature, and timestamp.
-        If abnormal simulation is enabled, returns out-of-range values.
+    Priority: custom override > abnormal simulation > random normal.
     """
+    if _vitals_override is not None:
+        return {
+            "heart_rate": _vitals_override.get("heart_rate", random.randint(65, 85)),
+            "spo2": _vitals_override.get("spo2", random.randint(95, 99)),
+            "temperature": _vitals_override.get("temperature", round(random.uniform(25.0, 27.0), 1)),
+            "timestamp": datetime.now().isoformat(),
+        }
     if _simulate_abnormal:
         return {
             "heart_rate": 125,
