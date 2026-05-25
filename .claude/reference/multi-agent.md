@@ -15,7 +15,7 @@ CareAgent（首腦）
 - 有 session 記憶（`_AgentWithMemory` wrapper）
 
 **AnalysisAgent** (`analysis_agent.py`)
-- 模型：`claude-sonnet-4-6`（用較聰明的模型做數據推理）
+- 模型：預設 `gemini-2.5-flash`（可在 Streamlit sidebar 切換，支援 OpenAI / Gemini）
 - 職責：近 N 天趨勢分析、異常模式識別
 - 工具：`get_health_trend(days)`
 - 無記憶（stateless，每次獨立呼叫）
@@ -79,7 +79,7 @@ def invoke_analysis_agent(graph, query: str) -> str:
 | 問題 | 解法 |
 |------|------|
 | 單一 Agent 上下文過大（5+ 工具同時在 context） | 主代理只掌 3 直接工具，深度任務委派 |
-| 健康趨勢分析需要更強的推理 | AnalysisAgent 用 claude-sonnet-4-6 |
+| 健康趨勢分析需要更強的推理 | AnalysisAgent 預設用 gemini-2.5-flash，可切換 |
 | 緊急通報要低延遲 | AlertAgent 用 gpt-4o-mini，不走複雜推理 |
 | 子代理循環 import | lazy import 放進 build_agent() 函式體 |
 | RunnableWithMessageHistory deprecated | 自建 _AgentWithMemory wrapper |

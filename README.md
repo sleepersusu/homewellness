@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 # 2. 設定 API Key
 cp .env.example .env
-# 編輯 .env，填入 OPENAI_API_KEY 和 ANTHROPIC_API_KEY
+# 編輯 .env，填入 OPENAI_API_KEY 和 GOOGLE_API_KEY
 
 # 3. 啟動
 streamlit run app.py
@@ -30,15 +30,16 @@ streamlit run app.py
 ### Multi-Agent 設計
 
 ```
-CareAgent（首腦 · gpt-4o-mini）
+CareAgent（首腦 · 預設 gpt-4o-mini）
     ├─ 直接工具：get_vitals / get_sleep_report / get_medication_schedule
-    ├─ → AnalysisAgent（claude-sonnet-4-6）：深度健康趨勢分析
-    └─ → AlertAgent（gpt-4o-mini）：緊急數值評估與家屬通報
+    ├─ → AnalysisAgent（預設 gemini-2.5-flash）：深度健康趨勢分析
+    └─ → AlertAgent（預設 gpt-4o-mini）：緊急數值評估與家屬通報
 ```
 
 - **CareAgent**：主對話、工具決策、子代理協調（`health_agent.py`）
-- **AnalysisAgent**：健康趨勢深度分析，使用更聰明的 Claude 模型（`analysis_agent.py`）
+- **AnalysisAgent**：健康趨勢深度分析，使用 Gemini 模型（`analysis_agent.py`）
 - **AlertAgent**：緊急應變，低延遲快速決策（`alert_agent.py`）
+- **模型可切換**：Streamlit sidebar 可即時選擇每個 Agent 的模型，支援 OpenAI / Gemini
 - **Memory**：`_AgentWithMemory` + `InMemoryChatMessageHistory`（CareAgent 的 session 記憶）
 - **主動觸發**：APScheduler 背景心跳（每 5 秒輪詢感測數據）
 - **UI**：Streamlit 左右分欄（數據面板 + 對話視窗）
@@ -49,8 +50,9 @@ CareAgent（首腦 · gpt-4o-mini）
 homewellness/
 ├── app.py                    # Streamlit 主程式 + APScheduler
 ├── agent/
-│   ├── health_agent.py       # CareAgent（主控 orchestrator · gpt-4o-mini）
-│   ├── analysis_agent.py     # AnalysisAgent（趨勢分析 · claude-sonnet-4-6）
+│   ├── health_agent.py       # CareAgent（主控 orchestrator · 預設 gpt-4o-mini）
+│   ├── llm_factory.py        # LLM 工廠：統一管理 OpenAI / Gemini 模型選擇
+│   ├── analysis_agent.py     # AnalysisAgent（趨勢分析 · 預設 gemini-2.5-flash）
 │   ├── alert_agent.py        # AlertAgent（緊急通報 · gpt-4o-mini）
 │   ├── tools.py              # 5 個 @tool 工具定義
 │   ├── memory.py             # _AgentWithMemory session 記憶
@@ -61,7 +63,7 @@ homewellness/
 │   └── health_history.json   # 近 30 天生理數據記錄
 ├── docs/
 │   └── architecture.html     # 系統架構視覺化圖
-├── tests/                    # pytest 測試套件（31 tests）
+├── tests/                    # pytest 測試套件（34 tests）
 ├── .env.example              # 環境變數範本
 └── requirements.txt
 ```
@@ -69,9 +71,11 @@ homewellness/
 ## 環境變數
 
 ```env
-OPENAI_API_KEY=sk-...         # CareAgent + AlertAgent（gpt-4o-mini）
-ANTHROPIC_API_KEY=sk-ant-...  # AnalysisAgent（claude-sonnet-4-6）
+OPENAI_API_KEY=sk-...         # CareAgent + AlertAgent（gpt-4o-mini / gpt-4o）
+GOOGLE_API_KEY=...            # AnalysisAgent（gemini-2.5-flash / gemini-2.5-pro 等）
 ```
+
+> 模型在 Streamlit sidebar 即時切換，不需重啟。支援模型：`gpt-4o-mini`、`gpt-4o`、`gemini-2.5-flash`、`gemini-2.5-pro`、`gemini-2.0-flash`
 
 ## AWS 正式架構（簡報說明）
 

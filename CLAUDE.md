@@ -16,7 +16,7 @@ IoT（mock_sensors.py）
     → 偵測異常 → pending_proactive → st.rerun()
       → CareAgent（gpt-4o-mini）決策
         ├─ 普通問答 → 直接回應
-        ├─ 趨勢分析 → call_analysis_agent → AnalysisAgent（claude-sonnet-4-6）
+        ├─ 趨勢分析 → call_analysis_agent → AnalysisAgent（預設 gemini-2.5-flash）
         └─ 生理異常 → call_alert_agent → AlertAgent（gpt-4o-mini）→ 通報家屬
 ```
 
@@ -28,8 +28,9 @@ IoT（mock_sensors.py）
 app.py                    # Streamlit UI + APScheduler
 agent/
   health_agent.py         # CareAgent（主控 orchestrator）
-  analysis_agent.py       # AnalysisAgent（深度趨勢分析）
-  alert_agent.py          # AlertAgent（緊急通報）
+  analysis_agent.py       # AnalysisAgent（深度趨勢分析，預設 gemini-2.5-flash）
+  alert_agent.py          # AlertAgent（緊急通報，預設 gpt-4o-mini）
+  llm_factory.py          # LLM 工廠：get_llm(model_name) → OpenAI / Gemini
   tools.py                # 5 個 @tool 函式（所有 agent 共用）
   prompts.py              # 3 個 build_*_prompt() 函式
   memory.py               # _AgentWithMemory（session 記憶）
@@ -37,7 +38,7 @@ data/
   mock_sensors.py         # Mock IoT（get_mock_vitals 等）
   health_profile.json     # 病患靜態資料（陳阿嬤）
   health_history.json     # 近 30 天生理歷史
-tests/                    # 31 個 pytest 測試
+tests/                    # 34 個 pytest 測試
 ```
 
 ---
@@ -47,7 +48,7 @@ tests/                    # 31 個 pytest 測試
 ```bash
 # 環境
 pip install -r requirements.txt
-cp .env.example .env   # 填入 OPENAI_API_KEY, ANTHROPIC_API_KEY
+cp .env.example .env   # 填入 OPENAI_API_KEY, GOOGLE_API_KEY
 
 # 啟動
 streamlit run app.py
