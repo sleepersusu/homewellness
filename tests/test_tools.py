@@ -53,6 +53,14 @@ def test_get_health_trend_schema():
     assert len(result["daily_records"]) == 7
 
 
+def test_get_health_trend_invalid_days():
+    """Test get_health_trend returns error for invalid days."""
+    from agent.tools import get_health_trend
+
+    result = get_health_trend.invoke({"days": 0})
+    assert "error" in result
+
+
 def test_send_emergency_alert_returns_confirmation():
     """Test send_emergency_alert returns confirmation with contact info."""
     from agent.tools import send_emergency_alert

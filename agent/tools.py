@@ -11,7 +11,7 @@ from data.mock_sensors import (
     get_mock_vitals,
 )
 
-_PROFILE_PATH = Path("data/health_profile.json")
+_PROFILE_PATH = Path(__file__).parent.parent / "data" / "health_profile.json"
 
 
 def _load_profile() -> dict:
@@ -45,6 +45,8 @@ def get_sleep_report() -> dict:
 def get_health_trend(days: int = 7) -> dict:
     """分析近 N 天生理數據趨勢（心率、血氧、睡眠平均值）。
     用於用戶詢問近期健康狀況，或提供週期性健康建議時。"""
+    if days < 1:
+        return {"error": "days 必須 >= 1"}
     history = get_mock_health_history(days)
     return {
         "days": days,
