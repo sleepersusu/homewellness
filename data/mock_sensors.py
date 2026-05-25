@@ -16,7 +16,7 @@ def set_simulate_abnormal(value: bool) -> None:
     _simulate_abnormal = value
 
 
-def get_mock_vitals() -> dict:
+def get_mock_vitals() -> dict[str, int | float | str]:
     """Get mock vital signs readings.
 
     Returns:
@@ -38,7 +38,7 @@ def get_mock_vitals() -> dict:
     }
 
 
-def get_mock_sleep_report() -> dict:
+def get_mock_sleep_report() -> dict[str, int | float | str]:
     """Get mock sleep data for the previous night.
 
     Returns:
@@ -52,7 +52,7 @@ def get_mock_sleep_report() -> dict:
     }
 
 
-def get_mock_health_history(days: int = 7) -> list[dict]:
+def get_mock_health_history(days: int = 7) -> list[dict[str, int | float | str]]:
     """Get mock health history for the specified number of days.
 
     Args:
@@ -61,6 +61,8 @@ def get_mock_health_history(days: int = 7) -> list[dict]:
     Returns:
         List of daily health records with date, heart_rate_avg, spo2_avg, and sleep_hours.
     """
+    if days < 1:
+        raise ValueError(f"days must be >= 1, got {days}")
     return [
         {
             "date": (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d"),

@@ -9,6 +9,7 @@ from data.mock_sensors import (
 
 def test_get_mock_vitals_schema():
     """Test that mock vitals have all required keys."""
+    set_simulate_abnormal(False)
     vitals = get_mock_vitals()
     assert "heart_rate" in vitals
     assert "spo2" in vitals
@@ -21,16 +22,18 @@ def test_get_mock_vitals_normal_ranges():
     set_simulate_abnormal(False)
     for _ in range(20):
         v = get_mock_vitals()
-        assert 50 <= v["heart_rate"] <= 120
-        assert 90 <= v["spo2"] <= 100
+        assert 65 <= v["heart_rate"] <= 85
+        assert 95 <= v["spo2"] <= 99
 
 
 def test_get_mock_vitals_abnormal_mode():
     """Test that abnormal mode produces out-of-range vitals."""
     set_simulate_abnormal(True)
-    v = get_mock_vitals()
-    assert v["heart_rate"] > 120 or v["spo2"] < 90
-    set_simulate_abnormal(False)  # cleanup
+    try:
+        v = get_mock_vitals()
+        assert v["heart_rate"] > 120 or v["spo2"] < 90
+    finally:
+        set_simulate_abnormal(False)
 
 
 def test_get_mock_sleep_report_schema():
@@ -55,3 +58,9 @@ def test_get_mock_health_history_schema():
         assert "heart_rate_avg" in record
         assert "spo2_avg" in record
         assert "sleep_hours" in record
+
+
+def test_get_mock_health_history_invalid_days():
+    """Test that invalid days argument raises ValueError."""
+    with pytest.raises(ValueError):
+        get_mock_health_history(0)
