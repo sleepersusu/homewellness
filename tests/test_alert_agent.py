@@ -4,13 +4,23 @@ from langchain_core.messages import AIMessage
 
 
 def test_build_alert_agent_returns_graph():
-    with patch("agent.alert_agent.ChatOpenAI") as mock_cls, \
+    with patch("agent.alert_agent.get_llm") as mock_get_llm, \
          patch("agent.alert_agent.create_agent") as mock_create:
-        mock_cls.return_value = MagicMock()
+        mock_get_llm.return_value = MagicMock()
         mock_create.return_value = MagicMock()
         from agent.alert_agent import build_alert_agent
         graph = build_alert_agent()
         assert graph is not None
+
+
+def test_build_alert_agent_accepts_custom_model():
+    with patch("agent.alert_agent.get_llm") as mock_get_llm, \
+         patch("agent.alert_agent.create_agent") as mock_create:
+        mock_get_llm.return_value = MagicMock()
+        mock_create.return_value = MagicMock()
+        from agent.alert_agent import build_alert_agent
+        build_alert_agent(model="gpt-4o")
+        mock_get_llm.assert_called_once_with("gpt-4o")
 
 
 def test_invoke_alert_agent_returns_string():

@@ -1,26 +1,34 @@
 # agent/health_agent.py  — CareAgent orchestrator
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
 from langchain_core.tools import tool
+from agent.llm_factory import get_llm
 from agent.tools import get_vitals, get_sleep_report, get_medication_schedule
 from agent.prompts import build_care_prompt
 from agent.memory import wrap_with_memory
 
 load_dotenv()
 
+DEFAULT_CARE_MODEL = "gpt-4o-mini"
+DEFAULT_ANALYSIS_MODEL = "gemini-2.5-flash"
+DEFAULT_ALERT_MODEL = "gpt-4o-mini"
 
-def build_agent():
+
+def build_agent(
+    care_model: str = DEFAULT_CARE_MODEL,
+    analysis_model: str = DEFAULT_ANALYSIS_MODEL,
+    alert_model: str = DEFAULT_ALERT_MODEL,
+):
     """Build the full multi-agent system.
 
-    Initialises AnalysisAgent and AlertAgent, wraps them as tools,
-    then builds the CareAgent (main orchestrator) with all five tools.
+    Accepts model names for each agent so the Streamlit UI can swap
+    models without restarting the server.
     """
     from agent.analysis_agent import build_analysis_agent, invoke_analysis_agent
     from agent.alert_agent import build_alert_agent, invoke_alert_agent
 
-    analysis_graph = build_analysis_agent()
-    alert_graph = build_alert_agent()
+    analysis_graph = build_analysis_agent(model=analysis_model)
+    alert_graph = build_alert_agent(model=alert_model)
 
     @tool
     def call_analysis_agent(query: str) -> str:
@@ -44,7 +52,7 @@ def build_agent():
         call_alert_agent,
     ]
 
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    llm = get_llm(care_model)
     graph = create_agent(llm, tools=main_tools, system_prompt=build_care_prompt())
     return wrap_with_memory(graph)
 

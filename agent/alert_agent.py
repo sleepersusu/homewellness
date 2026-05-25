@@ -1,17 +1,19 @@
 # agent/alert_agent.py
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
+from agent.llm_factory import get_llm
 from agent.tools import get_vitals, send_emergency_alert
 from agent.prompts import build_alert_prompt
 
 load_dotenv()
 
+DEFAULT_MODEL = "gpt-4o-mini"
 
-def build_alert_agent():
-    """Build the AlertAgent using gpt-4o-mini (fast response for emergencies)."""
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+def build_alert_agent(model: str = DEFAULT_MODEL):
+    """Build the AlertAgent with the given model (default: gpt-4o-mini)."""
+    llm = get_llm(model)
     return create_agent(
         llm,
         tools=[get_vitals, send_emergency_alert],

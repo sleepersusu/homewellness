@@ -3,16 +3,29 @@ from unittest.mock import patch, MagicMock
 
 
 def test_build_agent_returns_agent_with_memory():
-    # Sub-agents are lazy-imported inside build_agent(), so patch at source modules
-    with patch("agent.health_agent.ChatOpenAI") as mock_llm_cls, \
+    with patch("agent.health_agent.get_llm") as mock_get_llm, \
          patch("agent.health_agent.create_agent") as mock_create, \
          patch("agent.analysis_agent.build_analysis_agent", return_value=MagicMock()), \
          patch("agent.alert_agent.build_alert_agent", return_value=MagicMock()):
-        mock_llm_cls.return_value = MagicMock()
+        mock_get_llm.return_value = MagicMock()
         mock_create.return_value = MagicMock()
         from agent.health_agent import build_agent
         agent = build_agent()
         assert agent is not None
+
+
+def test_build_agent_passes_models_to_sub_agents():
+    with patch("agent.health_agent.get_llm") as mock_get_llm, \
+         patch("agent.health_agent.create_agent") as mock_create, \
+         patch("agent.analysis_agent.build_analysis_agent", return_value=MagicMock()) as mock_analysis, \
+         patch("agent.alert_agent.build_alert_agent", return_value=MagicMock()) as mock_alert:
+        mock_get_llm.return_value = MagicMock()
+        mock_create.return_value = MagicMock()
+        from agent.health_agent import build_agent
+        build_agent(care_model="gpt-4o", analysis_model="gemini-2.5-flash", alert_model="gpt-4o-mini")
+        mock_analysis.assert_called_once_with(model="gemini-2.5-flash")
+        mock_alert.assert_called_once_with(model="gpt-4o-mini")
+        mock_get_llm.assert_called_once_with("gpt-4o")
 
 
 def test_invoke_agent_returns_string():
