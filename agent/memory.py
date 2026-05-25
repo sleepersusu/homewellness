@@ -1,7 +1,7 @@
 """Session memory management for multi-turn conversations."""
 
 from langchain_core.chat_history import InMemoryChatMessageHistory
-from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.messages import HumanMessage, AIMessage
 
 _store: dict[str, InMemoryChatMessageHistory] = {}
 
@@ -29,18 +29,44 @@ def clear_session(session_id: str) -> None:
     _store.pop(session_id, None)
 
 
-def wrap_with_memory(runnable) -> RunnableWithMessageHistory:
-    """Wrap a runnable with message history support.
+class _AgentWithMemory:
+    """Wraps any executor-like object with in-memory session history.
+
+    Accepts any object that has an ``invoke(inputs, config=None)`` method.
+    This avoids the deprecated ``RunnableWithMessageHistory`` requirement
+    that the wrapped object must be a LangChain ``Runnable``.
+    """
+
+    def __init__(self, executor) -> None:
+        self._executor = executor
+
+    def invoke(self, inputs: dict, config: dict | None = None) -> dict:
+        config = config or {}
+        session_id = (config.get("configurable") or {}).get("session_id", "default")
+        history = get_session_history(session_id)
+
+        # Inject chat history into inputs
+        enriched = dict(inputs)
+        enriched["chat_history"] = history.messages
+
+        result = self._executor.invoke(enriched, config=config)
+
+        # Persist the exchange into history
+        user_input = inputs.get("input", "")
+        output = result.get("output", "") if isinstance(result, dict) else str(result)
+        history.add_message(HumanMessage(content=user_input))
+        history.add_message(AIMessage(content=output))
+
+        return result
+
+
+def wrap_with_memory(runnable) -> _AgentWithMemory:
+    """Wrap an executor with message history support.
 
     Args:
-        runnable: The runnable to wrap.
+        runnable: Any object with an ``invoke`` method.
 
     Returns:
-        RunnableWithMessageHistory that manages chat context.
+        _AgentWithMemory that manages chat context per session.
     """
-    return RunnableWithMessageHistory(
-        runnable,
-        get_session_history,
-        input_messages_key="input",
-        history_messages_key="chat_history",
-    )
+    return _AgentWithMemory(runnable)
