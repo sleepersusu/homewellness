@@ -6,9 +6,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 from agent.health_agent import build_agent, invoke_agent
 from agent.llm_factory import AVAILABLE_MODELS
+from charts import build_trend_chart
 from data.mock_sensors import (
     get_mock_vitals,
     get_mock_sleep_report,
+    get_mock_health_history,
     set_simulate_abnormal,
     set_vitals_override,
 )
@@ -158,7 +160,8 @@ if st.session_state.pending_proactive:
 
 # ── Layout ────────────────────────────────────────────
 st.title("🏥 HomeWellness Companion")
-col_data, col_chat = st.columns([1, 2])
+tab_live, tab_trend = st.tabs(["💬 即時監測與對話", "📈 健康趨勢儀表板"])
+col_data, col_chat = tab_live.columns([1, 2])
 
 # Left: Data Panel
 with col_data:
@@ -291,3 +294,38 @@ with col_chat:
         _record_stats(stats)
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.rerun()
+
+# ── 趨勢儀表板 ────────────────────────────────────────
+with tab_trend:
+    history = get_mock_health_history(30)
+    yesterday = history[-1]  # 最新一筆（昨日均值）
+
+    st.subheader("📊 當前數值 vs 昨日均值")
+    d1, d2, d3, d4 = st.columns(4)
+    d1.metric(
+        "💓 心率",
+        f"{vitals['heart_rate']} bpm",
+        delta=f"{vitals['heart_rate'] - round(yesterday['heart_rate_avg'])} bpm",
+    )
+    d2.metric(
+        "🩸 血氧",
+        f"{vitals['spo2']}%",
+        delta=f"{vitals['spo2'] - round(yesterday['spo2_avg'])}%",
+    )
+    d3.metric(
+        "🩺 收縮壓",
+        f"{vitals['blood_pressure']['systolic']} mmHg",
+        delta=f"{vitals['blood_pressure']['systolic'] - round(yesterday['blood_pressure_systolic_avg'])} mmHg",
+        delta_color="inverse",
+    )
+    d4.metric(
+        "🚶 今日步數",
+        f"{vitals['steps']:,} 步",
+        delta=f"{vitals['steps'] - yesterday['steps']:+,}",
+    )
+
+    st.divider()
+    st.subheader("📈 近 30 天生理趨勢")
+    st.caption("虛線為警報閾值：🔴 紅色 = 危險上/下限，🟠 橘色 = 警示下限")
+    fig = build_trend_chart(history, th)
+    st.plotly_chart(fig, use_container_width=True)
