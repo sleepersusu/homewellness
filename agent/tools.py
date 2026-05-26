@@ -21,7 +21,8 @@ def _load_profile() -> dict:
 
 @tool
 def get_vitals() -> dict:
-    """讀取即時生理數據：心率（heart_rate bpm）、血氧（spo2 %）、環境溫度（temperature °C）。
+    """讀取即時生理數據：心率（heart_rate bpm）、血氧（spo2 %）、血壓（blood_pressure.systolic/diastolic mmHg）、
+    環境溫度（temperature °C）、今日步數（steps）。
     當用戶提到頭暈、不舒服、胸悶、身體異常時使用此工具。"""
     return get_mock_vitals()
 

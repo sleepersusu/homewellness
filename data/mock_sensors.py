@@ -17,22 +17,26 @@ def set_vitals_override(values: dict | None) -> None:
     """Override specific vitals values. Pass None to clear.
 
     Args:
-        values: dict with optional keys heart_rate, spo2, temperature.
+        values: dict with optional keys heart_rate, spo2, temperature,
+                blood_pressure ({"systolic": int, "diastolic": int}), steps.
     """
     global _vitals_override
     _vitals_override = values
 
 
-def get_mock_vitals() -> dict[str, int | float | str]:
+def get_mock_vitals() -> dict[str, int | float | str | dict]:
     """Get mock vital signs readings.
 
     Priority: custom override > abnormal simulation > random normal.
     """
     if _vitals_override is not None:
+        default_bp = {"systolic": random.randint(110, 135), "diastolic": random.randint(70, 85)}
         return {
             "heart_rate": _vitals_override.get("heart_rate", random.randint(65, 85)),
             "spo2": _vitals_override.get("spo2", random.randint(95, 99)),
             "temperature": _vitals_override.get("temperature", round(random.uniform(25.0, 27.0), 1)),
+            "blood_pressure": _vitals_override.get("blood_pressure", default_bp),
+            "steps": _vitals_override.get("steps", random.randint(500, 8000)),
             "timestamp": datetime.now().isoformat(),
         }
     if _simulate_abnormal:
@@ -40,12 +44,16 @@ def get_mock_vitals() -> dict[str, int | float | str]:
             "heart_rate": 125,
             "spo2": 88,
             "temperature": 26.5,
+            "blood_pressure": {"systolic": 165, "diastolic": 105},
+            "steps": random.randint(500, 8000),
             "timestamp": datetime.now().isoformat(),
         }
     return {
         "heart_rate": random.randint(65, 85),
         "spo2": random.randint(95, 99),
         "temperature": round(random.uniform(25.0, 27.0), 1),
+        "blood_pressure": {"systolic": random.randint(110, 135), "diastolic": random.randint(70, 85)},
+        "steps": random.randint(500, 8000),
         "timestamp": datetime.now().isoformat(),
     }
 
@@ -81,6 +89,9 @@ def get_mock_health_history(days: int = 7) -> list[dict[str, int | float | str]]
             "heart_rate_avg": random.randint(68, 82),
             "spo2_avg": random.randint(95, 99),
             "sleep_hours": round(random.uniform(5.5, 8.0), 1),
+            "blood_pressure_systolic_avg": random.randint(112, 138),
+            "blood_pressure_diastolic_avg": random.randint(72, 88),
+            "steps": random.randint(2000, 8000),
         }
         for i in range(days)
     ]

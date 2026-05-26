@@ -57,11 +57,27 @@ class _AgentWithMemory:
         last = result["messages"][-1]
         output = last.content if hasattr(last, "content") else str(last)
 
+        # Sum token usage across all AI messages in this turn
+        input_tokens = 0
+        output_tokens = 0
+        for msg in result["messages"]:
+            meta = getattr(msg, "usage_metadata", None)
+            if meta:
+                input_tokens += meta.get("input_tokens", 0)
+                output_tokens += meta.get("output_tokens", 0)
+
         # Persist exchange to history
         history.add_message(HumanMessage(content=user_input))
         history.add_message(AIMessage(content=output))
 
-        return {"output": output}
+        return {
+            "output": output,
+            "usage_metadata": {
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "total_tokens": input_tokens + output_tokens,
+            },
+        }
 
 
 def wrap_with_memory(runnable) -> _AgentWithMemory:

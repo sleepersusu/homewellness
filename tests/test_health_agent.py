@@ -30,8 +30,53 @@ def test_build_agent_passes_models_to_sub_agents():
 
 def test_invoke_agent_returns_string():
     mock_agent = MagicMock()
-    mock_agent.invoke.return_value = {"output": "阿嬤早安！"}
+    mock_agent.invoke.return_value = {
+        "output": "阿嬤早安！",
+        "usage_metadata": {"input_tokens": 100, "output_tokens": 50, "total_tokens": 150},
+    }
     from agent.health_agent import invoke_agent
-    result = invoke_agent(mock_agent, "你好", session_id="test-session")
-    assert isinstance(result, str)
-    assert result == "阿嬤早安！"
+    text, stats = invoke_agent(mock_agent, "你好", session_id="test-session")
+    assert isinstance(text, str)
+    assert text == "阿嬤早安！"
+
+
+def test_invoke_agent_returns_stats_dict():
+    """Test invoke_agent returns stats with required fields."""
+    mock_agent = MagicMock()
+    mock_agent.invoke.return_value = {
+        "output": "OK",
+        "usage_metadata": {"input_tokens": 80, "output_tokens": 30, "total_tokens": 110},
+    }
+    from agent.health_agent import invoke_agent
+    _, stats = invoke_agent(mock_agent, "test", session_id="test-session")
+    assert "latency" in stats
+    assert "input_tokens" in stats
+    assert "output_tokens" in stats
+    assert "total_tokens" in stats
+    assert "cost_usd" in stats
+    assert "model" in stats
+
+
+def test_invoke_agent_latency_is_non_negative():
+    """Test that latency in stats is a non-negative float."""
+    mock_agent = MagicMock()
+    mock_agent.invoke.return_value = {
+        "output": "OK",
+        "usage_metadata": {"input_tokens": 50, "output_tokens": 20, "total_tokens": 70},
+    }
+    from agent.health_agent import invoke_agent
+    _, stats = invoke_agent(mock_agent, "test", session_id="test")
+    assert stats["latency"] >= 0.0
+
+
+def test_invoke_agent_cost_is_non_negative():
+    """Test that cost_usd is non-negative for known and unknown models."""
+    mock_agent = MagicMock()
+    mock_agent.invoke.return_value = {
+        "output": "OK",
+        "usage_metadata": {"input_tokens": 1000, "output_tokens": 500, "total_tokens": 1500},
+    }
+    from agent.health_agent import invoke_agent
+    _, stats = invoke_agent(mock_agent, "test", model="gpt-4o-mini")
+    assert stats["cost_usd"] >= 0.0
+    assert stats["cost_usd"] > 0  # gpt-4o-mini has known price

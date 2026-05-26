@@ -113,3 +113,41 @@ def test_set_vitals_override_takes_priority_over_simulate_abnormal():
     finally:
         set_vitals_override(None)
         set_simulate_abnormal(False)
+
+
+def test_get_mock_vitals_includes_blood_pressure():
+    """Test that mock vitals include blood_pressure with systolic and diastolic."""
+    set_simulate_abnormal(False)
+    vitals = get_mock_vitals()
+    assert "blood_pressure" in vitals
+    bp = vitals["blood_pressure"]
+    assert "systolic" in bp
+    assert "diastolic" in bp
+    assert isinstance(bp["systolic"], int)
+    assert isinstance(bp["diastolic"], int)
+
+
+def test_get_mock_vitals_includes_steps():
+    """Test that mock vitals include daily step count."""
+    set_simulate_abnormal(False)
+    vitals = get_mock_vitals()
+    assert "steps" in vitals
+    assert isinstance(vitals["steps"], int)
+    assert vitals["steps"] >= 0
+
+
+def test_get_mock_vitals_abnormal_blood_pressure():
+    """Test that abnormal mode returns elevated blood pressure above threshold."""
+    set_simulate_abnormal(True)
+    try:
+        vitals = get_mock_vitals()
+        assert vitals["blood_pressure"]["systolic"] > 140
+    finally:
+        set_simulate_abnormal(False)
+
+
+def test_get_mock_health_history_schema_includes_blood_pressure():
+    """Test that health history records include blood pressure averages."""
+    for record in get_mock_health_history(3):
+        assert "blood_pressure_systolic_avg" in record
+        assert "blood_pressure_diastolic_avg" in record

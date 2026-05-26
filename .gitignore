@@ -8,3 +8,11 @@ dist/
 build/
 .venv/
 venv/
+
+# 個人筆記（不上 git）
+_*.md
+
+# 工具內部目錄
+.superpowers/
+openspec/
+.claude/settings.local.json
