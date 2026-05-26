@@ -8,6 +8,16 @@ on each 5-second tick and routes it into the pending_proactive mechanism.
 from threading import Timer
 
 _followup_queue: list[str] = []
+_default_followup_minutes: int = 30
+
+
+def set_default_followup_minutes(minutes: int) -> None:
+    global _default_followup_minutes
+    _default_followup_minutes = max(1, minutes)
+
+
+def get_default_followup_minutes() -> int:
+    return _default_followup_minutes
 
 
 def _enqueue(message: str) -> None:

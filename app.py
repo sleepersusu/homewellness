@@ -86,6 +86,18 @@ with st.sidebar:
         st.metric("🪙 總 Token", f"{cum['total_tokens']:,}")
         st.metric("💵 總費用", f"${cum['total_cost']:.4f}")
 
+    st.divider()
+    st.header("⏰ 追蹤設定")
+    from agent.scheduler_tools import set_default_followup_minutes
+    followup_min = st.slider(
+        "AlertAgent 通報後追蹤間隔",
+        min_value=1, max_value=120, value=30, step=1,
+        format="%d 分鐘",
+        key="followup_minutes",
+    )
+    set_default_followup_minutes(followup_min)
+    st.caption(f"通報後 {followup_min} 分鐘自動追蹤確認阿嬤狀況")
+
 # ── Session State Init ────────────────────────────────
 if "agent" not in st.session_state:
     with st.spinner(f"載入 AI 健康伴侶（{care_model} / {analysis_model} / {alert_model}）..."):

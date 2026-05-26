@@ -74,15 +74,16 @@ def send_emergency_alert(reason: str) -> str:
 
 
 @tool
-def schedule_followup(reason: str, delay_minutes: int = 30) -> str:
+def schedule_followup(reason: str, delay_minutes: int = 0) -> str:
     """緊急通報後排程追蹤關懷。發送緊急通知後必須呼叫此工具，
-    在 delay_minutes 分鐘後自動主動確認阿嬤狀況是否改善。
-    輸入：reason（追蹤原因，如「心率異常後追蹤」）、delay_minutes（幾分鐘後追蹤，預設 30）。"""
-    from agent.scheduler_tools import schedule_followup_internal
-    delay = float(max(1, delay_minutes) * 60)
+    在指定分鐘後自動主動確認阿嬤狀況是否改善。
+    輸入：reason（追蹤原因，如「心率異常後追蹤」）、
+    delay_minutes（幾分鐘後追蹤，0 或省略則使用系統設定的預設值）。"""
+    from agent.scheduler_tools import schedule_followup_internal, get_default_followup_minutes
+    actual = delay_minutes if delay_minutes > 0 else get_default_followup_minutes()
     msg = (
         f"（系統觸發）排程追蹤：{reason}，"
         "請主動詢問阿嬤目前狀況，確認是否已改善。"
     )
-    schedule_followup_internal(msg, delay)
-    return f"✅ 已排程 {max(1, delay_minutes)} 分鐘後追蹤確認「{reason}」"
+    schedule_followup_internal(msg, float(actual * 60))
+    return f"✅ 已排程 {actual} 分鐘後追蹤確認「{reason}」"

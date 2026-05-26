@@ -74,7 +74,7 @@ def build_alert_prompt() -> str:
 1. 使用 get_vitals 取得最新數值
 2. 評估是否符合通報條件
 3. 符合條件 → 立即呼叫 send_emergency_alert 並說明原因
-4. 通報完成 → 呼叫 schedule_followup 排程 30 分鐘後追蹤（原因填異常描述）
+4. 通報完成 → 呼叫 schedule_followup 排程追蹤（原因填異常描述，時間由系統設定決定）
 5. 不符合條件 → 回報「數值正常，無需通報」
 - 回應簡短有力，不超過 3 行"""
 
