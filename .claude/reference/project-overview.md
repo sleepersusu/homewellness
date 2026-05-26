@@ -13,19 +13,21 @@
 ```
 D:\homewellness\
 ├── app.py                    # Streamlit UI + APScheduler 主程式
+├── charts.py                 # Plotly 30 天健康趨勢圖（build_trend_chart）
 ├── agent/
 │   ├── health_agent.py       # CareAgent（主控，預設 gpt-4o-mini）
 │   ├── analysis_agent.py     # AnalysisAgent（分析，預設 gemini-2.5-flash）
 │   ├── alert_agent.py        # AlertAgent（緊急，預設 gpt-4o-mini）
 │   ├── llm_factory.py        # LLM 工廠：get_llm(model_name) → OpenAI / Gemini
-│   ├── tools.py              # 5 個 @tool 函式
+│   ├── tools.py              # 6 個 @tool 函式
 │   ├── prompts.py            # 3 個 system prompt 建構函式
-│   └── memory.py             # _AgentWithMemory session 記憶
+│   ├── memory.py             # _AgentWithMemory session 記憶
+│   └── scheduler_tools.py    # followup 佇列 + Timer（cron-as-tool）
 ├── data/
 │   ├── mock_sensors.py       # Mock IoT 感測器數據
 │   ├── health_profile.json   # 病患靜態檔案（陳阿嬤）
 │   └── health_history.json   # 近 30 天生理歷史紀錄
-└── tests/                    # pytest 測試（47 tests）
+└── tests/                    # pytest 測試（63 tests）
 ```
 
 ---
@@ -78,14 +80,14 @@ pytest tests/ -v
 pytest tests/ --cov=agent --cov=data --cov-report=term-missing
 ```
 
-47 個測試，全部 pass。`asyncio_mode = auto`（pytest.ini）。
+63 個測試，全部 pass。`asyncio_mode = auto`（pytest.ini）。
 
 ---
 
 ## 相關參考文件
 
 - `.claude/reference/multi-agent.md` — 三代理架構詳解
-- `.claude/reference/tools.md` — 5 個工具函式
+- `.claude/reference/tools.md` — 6 個工具函式
 - `.claude/reference/memory.md` — Session 記憶實作
 - `.claude/reference/prompts.md` — 三個 system prompt
 - `.claude/reference/iot-layer.md` — Mock 感測器層

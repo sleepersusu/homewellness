@@ -22,8 +22,8 @@ CareAgent（首腦）
 
 **AlertAgent** (`alert_agent.py`)
 - 模型：`gpt-4o-mini`（快速低延遲，緊急不能等）
-- 職責：評估異常數值、決定是否通報、執行通報
-- 工具：`get_vitals()` + `send_emergency_alert(reason)`
+- 職責：評估異常數值、決定是否通報、執行通報、自排程後續追蹤
+- 工具：`get_vitals()` + `send_emergency_alert(reason)` + `schedule_followup(reason, delay_minutes)`
 - 無記憶（stateless）
 
 ---
@@ -98,3 +98,4 @@ text, stats = invoke_agent(agent, user_input, model="gpt-4o-mini")
 | 緊急通報要低延遲 | AlertAgent 用 gpt-4o-mini，不走複雜推理 |
 | 子代理循環 import | lazy import 放進 build_agent() 函式體 |
 | RunnableWithMessageHistory deprecated | 自建 _AgentWithMemory wrapper |
+| Agent 自排程追蹤 | schedule_followup tool → threading.Timer → followup_queue → pending_proactive |

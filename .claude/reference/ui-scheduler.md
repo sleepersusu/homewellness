@@ -5,7 +5,8 @@
 ```
 Sidebar
 ├── ⚙️ 模型設定（CareAgent / AnalysisAgent / AlertAgent selectbox）
-└── 📊 效能監控（最近一次延遲 / Token / 費用 + 累計統計）
+├── 📊 效能監控（最近一次延遲 / Token / 費用 + 累計統計）
+└── ⏰ 追蹤設定（AlertAgent 通報後追蹤間隔 slider，1–120 分鐘）
 
 st.columns([1, 2])
 ├── col_data（左 1/3）  — 即時數據面板 + Demo 控制台
@@ -33,7 +34,20 @@ with st.sidebar:
     st.divider()
     st.header("📊 效能監控")
 
-    # 最近一次
+    # 最近一次（原有效能監控區段略）
+
+    st.divider()
+    st.header("⏰ 追蹤設定")
+    from agent.scheduler_tools import set_default_followup_minutes
+    followup_min = st.slider(
+        "AlertAgent 通報後追蹤間隔",
+        min_value=1, max_value=120, value=30, step=1,
+        format="%d 分鐘", key="followup_minutes",
+    )
+    set_default_followup_minutes(followup_min)
+    st.caption(f"通報後 {followup_min} 分鐘自動追蹤確認阿嬤狀況")
+
+    # 最近一次（效能監控）
     last = st.session_state.get("last_stats")
     if last:
         m1, m2 = st.columns(2)
@@ -189,6 +203,14 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 if "scheduler_started" not in st.session_state:
     def _proactive_monitor():
+        # 1. 先檢查 agent 自排程的 followup 佇列
+        from agent.scheduler_tools import pop_followup
+        followup = pop_followup()
+        if followup:
+            st.session_state["pending_proactive"] = followup
+            return
+
+        # 2. 再做 IoT 閾值偵測
         vitals = get_mock_vitals()
         thresholds = ..._PROFILE["alert_thresholds"]
         bp = vitals["blood_pressure"]
@@ -252,3 +274,4 @@ if st.session_state.pending_proactive:
 | `scheduler_started` | `bool` | 防止重複建立 scheduler |
 | `last_stats` | `dict \| None` | 最近一次 invoke_agent 的效能數據 |
 | `cumulative_stats` | `dict` | 累計統計：`calls`, `total_tokens`, `total_cost` |
+| `followup_minutes` | `int` | AlertAgent 通報後追蹤間隔（sidebar slider key） |
