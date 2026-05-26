@@ -110,6 +110,12 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 if "scheduler_started" not in st.session_state:
     def _proactive_monitor():
+        from agent.scheduler_tools import pop_followup
+        followup = pop_followup()
+        if followup:
+            st.session_state["pending_proactive"] = followup
+            return
+
         vitals = get_mock_vitals()
         thresholds = json.loads(
             Path("data/health_profile.json").read_text(encoding="utf-8")
