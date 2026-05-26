@@ -1,0 +1,261 @@
+<mxfile host="Electron" modified="2026-05-26T00:00:00.000Z" version="26.0.0">
+  <diagram id="aws-arch" name="AWS Architecture">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1"
+                  tooltips="1" connect="1" arrows="1" fold="1"
+                  page="1" pageScale="1" pageWidth="1169" pageHeight="800"
+                  math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="HomeWellness Companion — AWS System Architecture"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="50" y="8" width="1069" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- ===== TIER 1: IoT 裝置層 ===== -->
+        <mxCell id="tier-iot" value="IoT 裝置層"
+                style="swimlane;startSize=28;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12;"
+                vertex="1" parent="1">
+          <mxGeometry x="50" y="48" width="1069" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sensor" value="穿戴感測器&#xa;心率 / 血氧 / 血壓 / 步數"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;"
+                vertex="1" parent="tier-iot">
+          <mxGeometry x="30" y="33" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mobileapp" value="手機 App&#xa;(BLE Gateway)"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;"
+                vertex="1" parent="tier-iot">
+          <mxGeometry x="270" y="33" width="130" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-sensor-mobile" value="BLE"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;fontStyle=2;fontSize=10;"
+                edge="1" source="sensor" target="mobileapp" parent="tier-iot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="poc-iot-note" value="PoC → mock_sensors.py + APScheduler"
+                style="text;html=1;strokeColor=#d6b656;fillColor=#fff2cc;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;"
+                vertex="1" parent="tier-iot">
+          <mxGeometry x="810" y="33" width="230" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ===== TIER 2: AWS 雲端層 ===== -->
+        <mxCell id="tier-aws" value="AWS 雲端層"
+                style="swimlane;startSize=28;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;"
+                vertex="1" parent="1">
+          <mxGeometry x="50" y="178" width="1069" height="250" as="geometry" />
+        </mxCell>
+
+        <mxCell id="iotcore" value="AWS IoT Core&#xa;(MQTT Broker)"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;"
+                vertex="1" parent="tier-aws">
+          <mxGeometry x="30" y="100" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lambda-anom" value="Lambda&#xa;anomaly-detector"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;"
+                vertex="1" parent="tier-aws">
+          <mxGeometry x="240" y="38" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lambda-data" value="Lambda&#xa;data-ingester"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;"
+                vertex="1" parent="tier-aws">
+          <mxGeometry x="240" y="160" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eventbridge" value="EventBridge&#xa;(定時排程)"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;"
+                vertex="1" parent="tier-aws">
+          <mxGeometry x="470" y="38" width="130" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lambda-trigger" value="Lambda&#xa;proactive-trigger"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;"
+                vertex="1" parent="tier-aws">
+          <mxGeometry x="680" y="38" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ddb-events" value="DynamoDB&#xa;health_events"
+                style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;"
+                vertex="1" parent="tier-aws">
+          <mxGeometry x="460" y="148" width="130" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ddb-history" value="DynamoDB&#xa;health_history"
+                style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;"
+                vertex="1" parent="tier-aws">
+          <mxGeometry x="620" y="148" width="130" height="62" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ddb-profiles" value="DynamoDB&#xa;user_profiles"
+                style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;"
+                vertex="1" parent="tier-aws">
+          <mxGeometry x="780" y="148" width="130" height="62" as="geometry" />
+        </mxCell>
+
+        <!-- AWS internal edges -->
+        <mxCell id="e-iotcore-anom" value="IoT Rule"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d79b00;fontStyle=2;fontSize=10;"
+                edge="1" source="iotcore" target="lambda-anom" parent="tier-aws">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-iotcore-data" value="5s write"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;fontStyle=2;fontSize=10;"
+                edge="1" source="iotcore" target="lambda-data" parent="tier-aws">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-anom-bridge" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d79b00;"
+                edge="1" source="lambda-anom" target="eventbridge" parent="tier-aws">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-bridge-trigger" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d79b00;"
+                edge="1" source="eventbridge" target="lambda-trigger" parent="tier-aws">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-data-ddb" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;"
+                edge="1" source="lambda-data" target="ddb-events" parent="tier-aws">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-anom-ddb" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d79b00;"
+                edge="1" source="lambda-anom" target="ddb-events" parent="tier-aws">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== TIER 3: AI Agent 層 ===== -->
+        <mxCell id="tier-ai" value="AI Agent 層（ECS Fargate）"
+                style="swimlane;startSize=28;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;"
+                vertex="1" parent="1">
+          <mxGeometry x="50" y="458" width="1069" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="careagent" value="CareAgent&#xa;gpt-4o-mini&#xa;主控 Orchestrator"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;"
+                vertex="1" parent="tier-ai">
+          <mxGeometry x="30" y="40" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="analysisagent" value="AnalysisAgent&#xa;Gemini 2.5 Flash"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;"
+                vertex="1" parent="tier-ai">
+          <mxGeometry x="270" y="18" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="alertagent" value="AlertAgent&#xa;gpt-4o-mini"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;"
+                vertex="1" parent="tier-ai">
+          <mxGeometry x="270" y="100" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sns" value="AWS SNS"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;"
+                vertex="1" parent="tier-ai">
+          <mxGeometry x="500" y="100" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notify" value="SMS / LINE Notify&#xa;家屬緊急通報"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;"
+                vertex="1" parent="tier-ai">
+          <mxGeometry x="690" y="100" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="poc-ai-note" value="PoC → app.py (本機 Streamlit)"
+                style="text;html=1;strokeColor=#d6b656;fillColor=#fff2cc;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;"
+                vertex="1" parent="tier-ai">
+          <mxGeometry x="870" y="60" width="170" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- AI internal edges -->
+        <mxCell id="e-care-analysis" value="趨勢分析"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;fontStyle=2;fontSize=10;"
+                edge="1" source="careagent" target="analysisagent" parent="tier-ai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-care-alert" value="異常通報"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;fontStyle=2;fontSize=10;"
+                edge="1" source="careagent" target="alertagent" parent="tier-ai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-alert-sns" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;"
+                edge="1" source="alertagent" target="sns" parent="tier-ai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-sns-notify" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;"
+                edge="1" source="sns" target="notify" parent="tier-ai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== TIER 4: Client 層 ===== -->
+        <mxCell id="tier-client" value="Client 層"
+                style="swimlane;startSize=28;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;"
+                vertex="1" parent="1">
+          <mxGeometry x="50" y="658" width="1069" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="elderapp" value="長者端&#xa;語音 Chat UI（Mobile App）"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;"
+                vertex="1" parent="tier-client">
+          <mxGeometry x="30" y="33" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="familydash" value="家屬端&#xa;健康摘要 Dashboard"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
+                vertex="1" parent="tier-client">
+          <mxGeometry x="690" y="33" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ===== CROSS-TIER EDGES (parent=1, absolute coords) ===== -->
+
+        <!-- mobileapp → iotcore -->
+        <mxCell id="e-mobile-iotcore" value="MQTT / TLS"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;fontStyle=1;fontSize=10;"
+                edge="1" source="mobileapp" target="iotcore" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- lambda-trigger → careagent -->
+        <mxCell id="e-trigger-care" value="POST /agent/invoke"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d79b00;fontStyle=2;fontSize=10;"
+                edge="1" source="lambda-trigger" target="careagent" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- careagent → elderapp -->
+        <mxCell id="e-care-elder" value="AI 回應"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;fontStyle=2;fontSize=10;"
+                edge="1" source="careagent" target="elderapp" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- notify → familydash -->
+        <mxCell id="e-notify-family" value="緊急通報"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;fontStyle=2;fontSize=10;"
+                edge="1" source="notify" target="familydash" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

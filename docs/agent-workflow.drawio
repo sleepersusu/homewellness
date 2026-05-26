@@ -1,0 +1,241 @@
+<mxfile host="Electron" modified="2026-05-26T00:00:00.000Z" version="26.0.0">
+  <diagram id="agent-workflow" name="AI Agent Workflow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1"
+                  tooltips="1" connect="1" arrows="1" fold="1"
+                  page="1" pageScale="1" pageWidth="1169" pageHeight="820"
+                  math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="aw-title" value="HomeWellness Companion — AI 多代理工作流"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="50" y="10" width="1069" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Entry: user input / system trigger -->
+        <mxCell id="aw-trigger" value="用戶輸入 / 系統觸發"
+                style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;"
+                vertex="1" parent="1">
+          <mxGeometry x="475" y="55" width="220" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- CareAgent orchestrator -->
+        <mxCell id="aw-care" value="CareAgent（gpt-4o-mini）&#xa;主控 Orchestrator"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;strokeWidth=2;"
+                vertex="1" parent="1">
+          <mxGeometry x="435" y="140" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Intent classification diamond -->
+        <mxCell id="aw-decision" value="意圖分類"
+                style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;"
+                vertex="1" parent="1">
+          <mxGeometry x="385" y="240" width="400" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ===== LEFT BRANCH: Simple Q&A ===== -->
+
+        <mxCell id="aw-left-label" value="普通問答"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=3;fontColor=#6c8ebf;"
+                vertex="1" parent="1">
+          <mxGeometry x="35" y="332" width="220" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-simple-tools" value="直接工具呼叫&#xa;get_vitals&#xa;get_sleep_report&#xa;get_medication_schedule"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;"
+                vertex="1" parent="1">
+          <mxGeometry x="35" y="355" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-simple-respond" value="直接回應長者"
+                style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="55" y="475" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ===== CENTER BRANCH: Trend Analysis ===== -->
+
+        <mxCell id="aw-center-label" value="趨勢分析"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=3;fontColor=#6c8ebf;"
+                vertex="1" parent="1">
+          <mxGeometry x="465" y="332" width="240" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-analysis-call" value="call_analysis_agent"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="465" y="355" width="240" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-analysis-box" value="AnalysisAgent&#xa;（Gemini 2.5 Flash）"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="465" y="435" width="240" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-analysis-tool" value="get_health_trend(days=N)"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="465" y="525" width="240" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-analysis-return" value="趨勢摘要 → 回傳 CareAgent"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;"
+                vertex="1" parent="1">
+          <mxGeometry x="465" y="600" width="240" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ===== RIGHT BRANCH: Alert ===== -->
+
+        <mxCell id="aw-right-label" value="數值異常"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=3;fontColor=#b85450;"
+                vertex="1" parent="1">
+          <mxGeometry x="875" y="332" width="220" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-alert-call" value="call_alert_agent"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="875" y="355" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-alert-box" value="AlertAgent&#xa;（gpt-4o-mini）"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="875" y="435" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-alert-tools" value="get_vitals&#xa;send_emergency_alert(reason)"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b85450;fontSize=11;"
+                vertex="1" parent="1">
+          <mxGeometry x="875" y="525" width="220" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aw-alert-notify" value="通報家屬&#xa;SMS / LINE Notify"
+                style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="875" y="610" width="220" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ===== BOTTOM: CareAgent responds ===== -->
+
+        <mxCell id="aw-respond" value="CareAgent 回應長者"
+                style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;"
+                vertex="1" parent="1">
+          <mxGeometry x="410" y="720" width="350" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ===== EDGES ===== -->
+
+        <!-- Entry → CareAgent -->
+        <mxCell id="e-trigger-care" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;"
+                edge="1" source="aw-trigger" target="aw-care" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- CareAgent → Decision -->
+        <mxCell id="e-care-decision" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;"
+                edge="1" source="aw-care" target="aw-decision" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision → LEFT (Simple Q&A) -->
+        <mxCell id="e-decision-left" value="普通問答"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;fontStyle=2;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;"
+                edge="1" source="aw-decision" target="aw-simple-tools" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision → CENTER (Analysis) -->
+        <mxCell id="e-decision-center" value="趨勢分析"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;fontStyle=2;fontSize=10;exitX=0.5;exitY=1;exitDx=0;exitDy=0;"
+                edge="1" source="aw-decision" target="aw-analysis-call" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision → RIGHT (Alert) -->
+        <mxCell id="e-decision-right" value="數值異常"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;fontStyle=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;"
+                edge="1" source="aw-decision" target="aw-alert-call" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- LEFT branch internal -->
+        <mxCell id="e-simple-respond" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;"
+                edge="1" source="aw-simple-tools" target="aw-simple-respond" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- LEFT → bottom respond -->
+        <mxCell id="e-left-bottom" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;"
+                edge="1" source="aw-simple-respond" target="aw-respond" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="145" y="747" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- CENTER branch internal -->
+        <mxCell id="e-analysis-call-box" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;"
+                edge="1" source="aw-analysis-call" target="aw-analysis-box" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-analysis-box-tool" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;"
+                edge="1" source="aw-analysis-box" target="aw-analysis-tool" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-analysis-tool-return" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;"
+                edge="1" source="aw-analysis-tool" target="aw-analysis-return" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- CENTER → bottom respond -->
+        <mxCell id="e-center-bottom" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;"
+                edge="1" source="aw-analysis-return" target="aw-respond" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- RIGHT branch internal -->
+        <mxCell id="e-alert-call-box" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;"
+                edge="1" source="aw-alert-call" target="aw-alert-box" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-alert-box-tools" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;"
+                edge="1" source="aw-alert-box" target="aw-alert-tools" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-alert-tools-notify" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;"
+                edge="1" source="aw-alert-tools" target="aw-alert-notify" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- RIGHT → bottom respond -->
+        <mxCell id="e-right-bottom" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;"
+                edge="1" source="aw-alert-notify" target="aw-respond" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="985" y="747" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

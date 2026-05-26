@@ -1,0 +1,201 @@
+<mxfile host="Electron" modified="2026-05-26T00:00:00.000Z" version="26.0.0">
+  <diagram id="user-journey" name="User Journey">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1"
+                  tooltips="1" connect="1" arrows="1" fold="1"
+                  page="1" pageScale="1" pageWidth="1000" pageHeight="820"
+                  math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="uj-title" value="HomeWellness Companion — User Journey: IoT 異常觸發主動對話"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="20" y="10" width="960" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Vertical divider between two paths -->
+        <mxCell id="uj-divider" value=""
+                style="edgeStyle=none;dashed=1;endArrow=none;strokeColor=#cccccc;strokeWidth=1;"
+                edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="270" y="48" as="sourcePoint" />
+            <mxPoint x="270" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ===== LEFT PATH: Scheduled Trigger ===== -->
+
+        <mxCell id="sched-header" value="定時觸發（排程問候）"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=3;fontColor=#d6b656;"
+                vertex="1" parent="1">
+          <mxGeometry x="20" y="48" width="230" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sched-start" value="APScheduler&#xa;早上 08:00 排程"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="30" y="70" width="175" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sched-care" value="CareAgent 主動問候&#xa;「阿嬤早安！昨晚睡了 6.5 小時，&#xa;早餐後記得吃血壓藥喔，&#xa;今天感覺怎麼樣？」"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;"
+                vertex="1" parent="1">
+          <mxGeometry x="20" y="155" width="195" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sched-end" value="記住已回應&#xa;不重複提醒"
+                style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
+                vertex="1" parent="1">
+          <mxGeometry x="30" y="280" width="175" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-sched-1" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;"
+                edge="1" source="sched-start" target="sched-care" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-sched-2" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;"
+                edge="1" source="sched-care" target="sched-end" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== RIGHT PATH: Reactive IoT ===== -->
+
+        <mxCell id="reactive-header" value="即時觸發（IoT 異常偵測）"
+                style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=3;fontColor=#9673a6;"
+                vertex="1" parent="1">
+          <mxGeometry x="290" y="48" width="690" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- IoT Sensor -->
+        <mxCell id="iot-sensor" value="IoT 感測器&#xa;心率 / 血氧 / 血壓 / 步數"
+                style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="440" y="70" width="220" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- APScheduler polling -->
+        <mxCell id="iot-poll" value="APScheduler 輪詢（每 5 秒）"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;"
+                vertex="1" parent="1">
+          <mxGeometry x="440" y="155" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Threshold decision -->
+        <mxCell id="iot-decide" value="閾值超標？&#xa;心率 &gt; 120 或 血氧 &lt; 90%"
+                style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;"
+                vertex="1" parent="1">
+          <mxGeometry x="390" y="235" width="320" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Normal loop-back -->
+        <mxCell id="e-loop" value="正常"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;fontStyle=2;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;"
+                edge="1" source="iot-decide" target="iot-poll" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="790" y="275" />
+              <mxPoint x="790" y="180" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- CareAgent proactive -->
+        <mxCell id="care-proactive" value="CareAgent 主動開口（&lt; 10 秒）&#xa;「阿嬤，我看到你心跳有點快，&#xa;你現在坐著嗎？有沒有不舒服？」"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;strokeWidth=2;"
+                vertex="1" parent="1">
+          <mxGeometry x="400" y="350" width="300" height="85" as="geometry" />
+        </mxCell>
+
+        <!-- Elder responds decision -->
+        <mxCell id="respond-decide" value="長者回應？"
+                style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;"
+                vertex="1" parent="1">
+          <mxGeometry x="400" y="465" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Yes: comfort -->
+        <mxCell id="comfort-ok" value="安撫 + 建議 + 持續關注&#xa;「好的阿嬤，先深呼吸，&#xa;我幫你量一下血壓。」"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;"
+                vertex="1" parent="1">
+          <mxGeometry x="730" y="452" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- AlertAgent evaluation -->
+        <mxCell id="alert-eval" value="AlertAgent 評估&#xa;確認最新生理數值"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;"
+                vertex="1" parent="1">
+          <mxGeometry x="400" y="570" width="300" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Notify family -->
+        <mxCell id="notify-family" value="通報家屬&#xa;「陳大文：媽媽心率 125 bpm，&#xa;血氧 88%，5 分鐘無回應，&#xa;請立即確認。」"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;"
+                vertex="1" parent="1">
+          <mxGeometry x="400" y="660" width="300" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- CareAgent comfort after alert -->
+        <mxCell id="care-comfort" value="CareAgent 安撫長者&#xa;「我已經告訴大文了，&#xa;你先放輕鬆，我陪著你。」"
+                style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;"
+                vertex="1" parent="1">
+          <mxGeometry x="730" y="665" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ===== REACTIVE EDGES ===== -->
+
+        <mxCell id="e-sensor-poll" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#9673a6;"
+                edge="1" source="iot-sensor" target="iot-poll" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-poll-decide" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#d6b656;"
+                edge="1" source="iot-poll" target="iot-decide" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-decide-proactive" value="異常"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;fontStyle=1;fontSize=10;"
+                edge="1" source="iot-decide" target="care-proactive" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-proactive-respond" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;"
+                edge="1" source="care-proactive" target="respond-decide" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-respond-yes" value="有回應"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#82b366;fontStyle=2;fontSize=10;"
+                edge="1" source="respond-decide" target="comfort-ok" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-respond-no" value="5 分鐘無回應"
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;fontStyle=2;fontSize=10;"
+                edge="1" source="respond-decide" target="alert-eval" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-eval-notify" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#b85450;"
+                edge="1" source="alert-eval" target="notify-family" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-notify-comfort" value=""
+                style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6c8ebf;"
+                edge="1" source="notify-family" target="care-comfort" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
