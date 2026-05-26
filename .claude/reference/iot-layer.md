@@ -31,30 +31,47 @@ UI 場景模擬的主要入口，傳 `None` 清除覆蓋值：
 
 ```python
 # 場景預設
-set_vitals_override({"heart_rate": 125, "spo2": 88})     # 心跳過快
-set_vitals_override({"heart_rate": 42,  "spo2": 96})     # 心跳過慢
-set_vitals_override({"heart_rate": 95,  "spo2": 85})     # 低血氧
-set_vitals_override({"heart_rate": hr, "spo2": s, "temperature": t})  # 自訂
-set_vitals_override(None)                                 # 清除，回到隨機
+set_vitals_override({"heart_rate": 125, "spo2": 88})                       # 心跳過快
+set_vitals_override({"heart_rate": 42,  "spo2": 96})                       # 心跳過慢
+set_vitals_override({"heart_rate": 95,  "spo2": 85})                       # 低血氧
+set_vitals_override({"blood_pressure": {"systolic": 168, "diastolic": 108}})  # 高血壓
+set_vitals_override({"heart_rate": hr, "spo2": s, "temperature": t,
+                     "blood_pressure": {"systolic": sys, "diastolic": dia}})   # 自訂
+set_vitals_override(None)                                                   # 清除，回到隨機
 ```
 
-keys 為選填，未指定的項目回落到隨機正常值。
+keys 為選填，未指定的項目回落到隨機正常值。支援 `blood_pressure`（巢狀 dict）和 `steps` 覆蓋。
 
 ### `set_simulate_abnormal(value: bool)`
 
 保留供測試使用。UI 已改用 `set_vitals_override()`。
 
-### `get_mock_vitals() -> dict`
+### `get_mock_vitals() -> dict[str, int | float | str | dict]`
 
 ```python
 # 正常模式（_vitals_override = None, _simulate_abnormal = False）
-{"heart_rate": 72, "spo2": 98, "temperature": 26.0, "timestamp": "..."}
+{
+  "heart_rate": 72, "spo2": 98, "temperature": 26.0,
+  "steps": 4321,
+  "blood_pressure": {"systolic": 122, "diastolic": 78},
+  "timestamp": "...",
+}
 
-# 自訂覆蓋模式
-{"heart_rate": 125, "spo2": 88, "temperature": 26.0, "timestamp": "..."}
+# 高血壓場景
+{
+  "heart_rate": 80, "spo2": 97, "temperature": 26.0,
+  "steps": 3200,
+  "blood_pressure": {"systolic": 168, "diastolic": 108},
+  "timestamp": "...",
+}
 
 # 舊版異常模式（_simulate_abnormal = True）
-{"heart_rate": 125, "spo2": 88, "temperature": 26.5, "timestamp": "..."}
+{
+  "heart_rate": 125, "spo2": 88, "temperature": 26.5,
+  "steps": 500,
+  "blood_pressure": {"systolic": 165, "diastolic": 105},
+  "timestamp": "...",
+}
 ```
 
 ### `get_mock_sleep_report() -> dict`
@@ -68,7 +85,12 @@ keys 為選填，未指定的項目回落到隨機正常值。
 回傳近 days 天的每日平均生理數據。若 `days < 1` 拋 `ValueError`。
 ```python
 [
-  {"date": "2026-05-18", "heart_rate_avg": 74, "spo2_avg": 97, "sleep_hours": 7.1},
+  {
+    "date": "2026-05-18",
+    "heart_rate_avg": 74, "spo2_avg": 97, "sleep_hours": 7.1,
+    "blood_pressure_systolic_avg": 126, "blood_pressure_diastolic_avg": 80,
+    "steps": 5200,
+  },
   ...
 ]
 ```
@@ -95,7 +117,9 @@ keys 為選填，未指定的項目回落到隨機正常值。
   "alert_thresholds": {
     "heart_rate_high": 120,
     "heart_rate_low": 50,
-    "spo2_low": 90
+    "spo2_low": 90,
+    "systolic_high": 140,
+    "diastolic_high": 90
   }
 }
 ```

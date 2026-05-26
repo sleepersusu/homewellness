@@ -25,7 +25,7 @@ D:\homewellness\
 │   ├── mock_sensors.py       # Mock IoT 感測器數據
 │   ├── health_profile.json   # 病患靜態檔案（陳阿嬤）
 │   └── health_history.json   # 近 30 天生理歷史紀錄
-└── tests/                    # pytest 測試（34 tests）
+└── tests/                    # pytest 測試（47 tests）
 ```
 
 ---
@@ -78,7 +78,7 @@ pytest tests/ -v
 pytest tests/ --cov=agent --cov=data --cov-report=term-missing
 ```
 
-34 個測試，全部 pass。`asyncio_mode = auto`（pytest.ini）。
+47 個測試，全部 pass。`asyncio_mode = auto`（pytest.ini）。
 
 ---
 

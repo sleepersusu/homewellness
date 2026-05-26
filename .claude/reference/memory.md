@@ -43,11 +43,27 @@ def invoke(self, inputs: dict, config: dict | None = None) -> dict:
     last = result["messages"][-1]
     output = last.content if hasattr(last, "content") else str(last)
 
+    # 彙總所有訊息的 token 用量（OpenAI / Gemini 都在 usage_metadata 回傳）
+    input_tokens = 0
+    output_tokens = 0
+    for msg in result["messages"]:
+        meta = getattr(msg, "usage_metadata", None)
+        if meta:
+            input_tokens += meta.get("input_tokens", 0)
+            output_tokens += meta.get("output_tokens", 0)
+
     # 存入歷史
     history.add_message(HumanMessage(content=user_input))
     history.add_message(AIMessage(content=output))
 
-    return {"output": output}
+    return {
+        "output": output,
+        "usage_metadata": {
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "total_tokens": input_tokens + output_tokens,
+        },
+    }
 ```
 
 ---

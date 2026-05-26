@@ -72,6 +72,21 @@ def invoke_analysis_agent(graph, query: str) -> str:
     return last.content if hasattr(last, "content") else str(last)
 ```
 
+### CareAgent（invoke_agent）回傳格式
+
+```python
+# invoke_agent 回傳 tuple[str, dict]，stats 含效能數據
+text, stats = invoke_agent(agent, user_input, model="gpt-4o-mini")
+# stats = {
+#   "latency": 1.23,        # 秒
+#   "input_tokens": 420,
+#   "output_tokens": 85,
+#   "total_tokens": 505,
+#   "cost_usd": 0.0000863,  # 依 _MODEL_PRICES 計算
+#   "model": "gpt-4o-mini",
+# }
+```
+
 ---
 
 ## 為什麼這樣設計
