@@ -81,3 +81,23 @@ def test_get_vitals_abnormal_mode():
         assert result["heart_rate"] == 125 or result["spo2"] == 88
     finally:
         set_simulate_abnormal(False)
+
+
+def test_get_vitals_includes_blood_pressure():
+    """Test get_vitals returns blood_pressure with systolic and diastolic."""
+    from agent.tools import get_vitals
+
+    result = get_vitals.invoke({})
+    assert "blood_pressure" in result
+    bp = result["blood_pressure"]
+    assert "systolic" in bp
+    assert "diastolic" in bp
+
+
+def test_get_vitals_includes_steps():
+    """Test get_vitals returns steps field."""
+    from agent.tools import get_vitals
+
+    result = get_vitals.invoke({})
+    assert "steps" in result
+    assert isinstance(result["steps"], int)

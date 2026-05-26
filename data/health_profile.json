@@ -13,6 +13,8 @@
   "alert_thresholds": {
     "heart_rate_high": 120,
     "heart_rate_low": 50,
-    "spo2_low": 90
+    "spo2_low": 90,
+    "systolic_high": 140,
+    "diastolic_high": 90
   }
 }
