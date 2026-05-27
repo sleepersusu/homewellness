@@ -8,693 +8,929 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F9F9F7;--white:#fff;--text:#1A1A1A;--muted:#78746E;--border:#E5E3DF;
+  --accent:#1A56DB;--accent-l:#EEF2FF;
+  --danger:#DC2626;--danger-l:#FEF2F2;
+  --warning:#D97706;--warning-l:#FFFBEB;
+  --success:#059669;--success-l:#ECFDF5;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --code:#F4F3F1;
+  --serif:'Spectral',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --W:980px;--H:630px;
+}
+html,body{width:100%;height:100%;background:var(--bg);font-family:var(--sans);color:var(--text);overflow:hidden;user-select:none}
+#stage{width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#deck{width:var(--W);height:var(--H);background:var(--white);border:1px solid var(--border);border-radius:12px;position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.03)}
+.slide{position:absolute;inset:0;padding:44px 58px 40px;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.slide.active{opacity:1;pointer-events:auto}
 
-  :root {
-    --bg: #F9F9F7;
-    --white: #FFFFFF;
-    --text: #1A1A1A;
-    --muted: #78746E;
-    --border: #E5E3DF;
-    --accent: #1A56DB;
-    --accent-light: #EEF2FF;
-    --danger: #DC2626;
-    --danger-light: #FEF2F2;
-    --warning: #D97706;
-    --warning-light: #FFFBEB;
-    --success: #059669;
-    --success-light: #ECFDF5;
-    --code-bg: #F4F3F1;
-    --font-serif: 'Spectral', Georgia, serif;
-    --font-sans: 'DM Sans', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    --slide-w: 960px;
-    --slide-h: 620px;
-  }
+/* meta */
+.sm{display:flex;align-items:center;gap:9px;margin-bottom:22px}
+.sn{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.st{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 9px;border:1px solid var(--border);border-radius:100px;color:var(--muted)}
+.st.a{color:var(--accent);border-color:#BFCFFF;background:var(--accent-l)}
+.st.d{color:var(--danger);border-color:#FECACA;background:var(--danger-l)}
+.st.w{color:var(--warning);border-color:#FDE68A;background:var(--warning-l)}
+.st.s{color:var(--success);border-color:#A7F3D0;background:var(--success-l)}
+.st.p{color:var(--purple);border-color:#DDD6FE;background:var(--purple-l)}
 
-  html, body {
-    width: 100%; height: 100%;
-    background: var(--bg);
-    font-family: var(--font-sans);
-    color: var(--text);
-    overflow: hidden;
-    user-select: none;
-  }
+/* type */
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;color:var(--text)}
+h1{font-size:42px}h2{font-size:26px;margin-bottom:20px}h3{font-size:13px;margin-bottom:6px}
+p{font-size:12px;line-height:1.6;color:var(--muted)}
+.huge{font-size:50px;line-height:1.05;letter-spacing:-.02em}
+.lead{font-size:16px;color:var(--muted);font-weight:300;line-height:1.5}
+code,.mono{font-family:var(--mono);font-size:10px;background:var(--code);padding:1px 5px;border-radius:3px;color:var(--text)}
+hr{border:none;border-top:1px solid var(--border);margin:14px 0}
 
-  /* ─── STAGE ─────────────────────────────── */
-  #stage {
-    width: 100vw; height: 100vh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 20px;
-  }
+/* callout */
+.co{padding:11px 14px;border-radius:7px;border-left:3px solid;font-size:12px;line-height:1.5;margin:8px 0}
+.co.a{background:var(--accent-l);border-color:var(--accent);color:#1E3A8A}
+.co.d{background:var(--danger-l);border-color:var(--danger);color:#7F1D1D}
+.co.w{background:var(--warning-l);border-color:var(--warning);color:#78350F}
+.co.s{background:var(--success-l);border-color:var(--success);color:#064E3B}
+.co.p{background:var(--purple-l);border-color:var(--purple);color:#4C1D95}
 
-  /* ─── SLIDE FRAME ────────────────────────── */
-  #deck {
-    width: var(--slide-w);
-    height: var(--slide-h);
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
-  }
+/* grid */
+.g{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g12{grid-template-columns:1fr 2fr}
+.g21{grid-template-columns:2fr 1fr}
+.g13{grid-template-columns:1fr 3fr}
 
-  .slide {
-    position: absolute;
-    inset: 0;
-    padding: 52px 64px 48px;
-    display: flex;
-    flex-direction: column;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .35s ease;
-  }
-  .slide.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
+/* card */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:12px 16px}
+.card h3{font-size:12px;margin-bottom:4px}.card p{font-size:11px}
 
-  /* ─── SLIDE HEADER (number + tag) ────────── */
-  .slide-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 28px;
-  }
-  .slide-num {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: .04em;
-  }
-  .slide-tag {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 3px 10px;
-    border: 1px solid var(--border);
-    border-radius: 100px;
-  }
-  .slide-tag.accent { color: var(--accent); border-color: #BFCFFF; background: var(--accent-light); }
-  .slide-tag.danger { color: var(--danger); border-color: #FECACA; background: var(--danger-light); }
-  .slide-tag.warning { color: var(--warning); border-color: #FDE68A; background: var(--warning-light); }
-  .slide-tag.success { color: var(--success); border-color: #A7F3D0; background: var(--success-light); }
+/* table */
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead tr{border-bottom:2px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border)}
+tbody tr:last-child{border-bottom:none}
+th{text-align:left;padding:6px 10px;font-weight:600;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+td{padding:8px 10px;vertical-align:top;line-height:1.4}
+.tw{border:1px solid var(--border);border-radius:7px;overflow:hidden}
 
-  /* ─── TYPOGRAPHY ─────────────────────────── */
-  h1, h2, h3 { font-family: var(--font-serif); font-weight: 600; line-height: 1.2; color: var(--text); }
-  h1 { font-size: 42px; }
-  h2 { font-size: 28px; margin-bottom: 24px; }
-  h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-  p { font-size: 14px; line-height: 1.6; color: var(--muted); }
+/* stat */
+.stat-n{font-family:var(--serif);font-size:44px;font-weight:600;line-height:1}
+.stat-l{font-size:10px;color:var(--muted);margin-top:2px}
 
-  .huge { font-size: 52px; line-height: 1.05; letter-spacing: -.02em; }
-  .lead { font-size: 18px; color: var(--muted); font-weight: 300; line-height: 1.5; }
-  .caption { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
-  code, .mono { font-family: var(--font-mono); font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: var(--text); }
+/* tags */
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.tag{font-size:10px;font-weight:500;padding:3px 10px;border-radius:100px;border:1px solid var(--border);color:var(--muted)}
+.tag.b{background:var(--accent-l);color:var(--accent);border-color:#BFCFFF}
+.tag.g{background:var(--success-l);color:var(--success);border-color:#A7F3D0}
+.tag.p{background:var(--purple-l);color:var(--purple);border-color:#DDD6FE}
 
-  /* ─── DIVIDER ────────────────────────────── */
-  hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+/* flow */
+.flow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:10px 0}
+.fs{padding:6px 12px;border-radius:5px;border:1px solid var(--border);font-size:11px;font-weight:500;background:var(--white)}
+.fa{color:var(--muted);font-size:13px}
+.fs.b{background:var(--accent-l);border-color:#BFCFFF;color:var(--accent)}
+.fs.r{background:var(--danger-l);border-color:#FECACA;color:var(--danger)}
+.fs.w{background:var(--warning-l);border-color:#FDE68A;color:var(--warning)}
+.fs.g{background:var(--success-l);border-color:#A7F3D0;color:var(--success)}
+.fs.p{background:var(--purple-l);border-color:#DDD6FE;color:var(--purple)}
 
-  /* ─── CALLOUT ────────────────────────────── */
-  .callout {
-    padding: 14px 18px;
-    border-radius: 8px;
-    border-left: 3px solid;
-    font-size: 14px;
-    line-height: 1.5;
-    margin: 12px 0;
-  }
-  .callout.danger  { background: var(--danger-light);  border-color: var(--danger);  color: #7F1D1D; }
-  .callout.warning { background: var(--warning-light); border-color: var(--warning); color: #78350F; }
-  .callout.accent  { background: var(--accent-light);  border-color: var(--accent);  color: #1E3A8A; }
-  .callout.success { background: var(--success-light); border-color: var(--success); color: #064E3B; }
+/* bullets */
+.bl{list-style:none;display:flex;flex-direction:column;gap:8px}
+.bl li{font-size:12px;color:var(--text);padding-left:14px;position:relative;line-height:1.5}
+.bl li::before{content:'—';position:absolute;left:0;color:var(--muted)}
+.bl li strong{font-weight:600}
 
-  /* ─── GRID / COLUMNS ─────────────────────── */
-  .cols { display: grid; gap: 20px; }
-  .cols-2 { grid-template-columns: 1fr 1fr; }
-  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
-  .cols-12 { grid-template-columns: 1fr 2fr; }
-  .cols-21 { grid-template-columns: 2fr 1fr; }
+/* agent card */
+.ac{border:1px solid var(--border);border-radius:7px;padding:11px 14px;display:flex;flex-direction:column;gap:4px}
+.ac-n{font-weight:600;font-size:12px}
+.ac-m{font-family:var(--mono);font-size:9px;color:var(--muted)}
+.ac-r{font-size:11px;color:var(--muted);line-height:1.4}
+.ac-t{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.ac-tool{font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:3px;background:var(--code);border:1px solid var(--border);color:var(--muted)}
 
-  /* ─── CARD ───────────────────────────────── */
-  .card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 20px;
-  }
-  .card h3 { margin-bottom: 6px; font-size: 14px; }
-  .card p  { font-size: 13px; }
+/* arch flow */
+.af{font-family:var(--mono);font-size:11px;background:var(--code);border:1px solid var(--border);border-radius:7px;padding:16px 20px;line-height:1.9;color:var(--text)}
+.hb{color:var(--accent);font-weight:500}
+.hr2{color:var(--danger);font-weight:500}
+.hw{color:var(--warning);font-weight:500}
+.hg{color:var(--success);font-weight:500}
+.hm{color:var(--muted)}
+.hp{color:var(--purple);font-weight:500}
 
-  /* ─── TABLE ──────────────────────────────── */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead tr { border-bottom: 2px solid var(--border); }
-  tbody tr { border-bottom: 1px solid var(--border); }
-  tbody tr:last-child { border-bottom: none; }
-  th { text-align: left; padding: 8px 12px; font-weight: 500; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
-  td { padding: 10px 12px; vertical-align: top; line-height: 1.4; }
-  td:first-child { font-weight: 500; white-space: nowrap; }
-  .table-wrap { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+/* timeline */
+.tl{display:flex;align-items:stretch;gap:0}
+.tl-s{flex:1;padding:12px 14px;border:1px solid var(--border);border-right:none}
+.tl-s:first-child{border-radius:7px 0 0 7px}
+.tl-s:last-child{border-right:1px solid var(--border);border-radius:0 7px 7px 0}
+.tl-t{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px}
+.tl-h{font-weight:600;font-size:12px;margin-bottom:3px}
+.tl-d{font-size:10px;color:var(--muted);line-height:1.4}
 
-  /* ─── STAT ───────────────────────────────── */
-  .stat { display: flex; flex-direction: column; gap: 4px; }
-  .stat-number { font-family: var(--font-serif); font-size: 48px; font-weight: 600; line-height: 1; color: var(--text); }
-  .stat-label  { font-size: 12px; color: var(--muted); }
+/* persona */
+.pa{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#FDE68A,#F59E0B);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pr{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.pn{font-family:var(--serif);font-size:20px;font-weight:600}
+.ps{font-size:11px;color:var(--muted)}
 
-  /* ─── TAG ROW ────────────────────────────── */
-  .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-  .tag {
-    font-size: 12px; font-weight: 500;
-    padding: 4px 12px; border-radius: 100px;
-    border: 1px solid var(--border);
-    color: var(--muted);
-  }
-  .tag.blue  { background: var(--accent-light); color: var(--accent); border-color: #BFCFFF; }
-  .tag.green { background: var(--success-light); color: var(--success); border-color: #A7F3D0; }
-  .tag.amber { background: var(--warning-light); color: var(--warning); border-color: #FDE68A; }
+/* compare */
+.cr{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:7px;overflow:hidden;margin:3px 0}
+.cb{background:var(--danger-l);padding:8px 12px;font-size:11px;color:#7F1D1D;border-right:1px solid #FECACA}
+.cg{background:var(--success-l);padding:8px 12px;font-size:11px;color:#064E3B}
+.cl{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 
-  /* ─── FLOW ───────────────────────────────── */
-  .flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
-  .flow-step {
-    padding: 8px 16px; border-radius: 6px;
-    border: 1px solid var(--border);
-    font-size: 13px; font-weight: 500;
-    background: var(--white);
-  }
-  .flow-arrow { color: var(--muted); font-size: 16px; }
-  .flow-step.blue  { background: var(--accent-light); border-color: #BFCFFF; color: var(--accent); }
-  .flow-step.red   { background: var(--danger-light); border-color: #FECACA; color: var(--danger); }
-  .flow-step.amber { background: var(--warning-light); border-color: #FDE68A; color: var(--warning); }
-  .flow-step.green { background: var(--success-light); border-color: #A7F3D0; color: var(--success); }
+/* scenario */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:7px}
+.si{border:1px solid var(--border);border-radius:6px;padding:9px 11px;font-size:11px}
+.si.act{border-color:#FECACA;background:var(--danger-l);color:#7F1D1D}
+.si.nrm{border-color:#A7F3D0;background:var(--success-l);color:#064E3B}
+.si-n{font-weight:600;margin-bottom:2px}
+.si-v{font-family:var(--mono);font-size:9px;opacity:.8}
 
-  /* ─── BULLET LIST ────────────────────────── */
-  .bullet-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-  .bullet-list li { font-size: 14px; color: var(--text); padding-left: 18px; position: relative; line-height: 1.5; }
-  .bullet-list li::before { content: '—'; position: absolute; left: 0; color: var(--muted); }
-  .bullet-list li strong { font-weight: 600; }
+/* threshold */
+.tr-row{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border)}
+.tr-row:last-child{border-bottom:none}
+.tr-icon{font-size:16px;flex-shrink:0;width:24px}
+.tr-name{font-weight:500;font-size:12px;min-width:60px}
+.tr-val{font-family:var(--mono);font-size:11px;color:var(--danger);flex:1}
+.tr-norm{font-size:10px;color:var(--muted)}
 
-  /* ─── AGENT CARD ─────────────────────────── */
-  .agent-card {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 18px;
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .agent-name { font-weight: 600; font-size: 14px; }
-  .agent-model { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
-  .agent-role { font-size: 13px; color: var(--muted); line-height: 1.4; }
-  .agent-tools { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-  .agent-tool { font-family: var(--font-mono); font-size: 10px; padding: 2px 8px; border-radius: 4px; background: var(--code-bg); border: 1px solid var(--border); color: var(--muted); }
+/* chart preview */
+.cp{background:var(--code);border:1px solid var(--border);border-radius:7px;padding:12px 16px}
+.ch-row{display:grid;grid-template-columns:60px 1fr 50px;align-items:center;gap:7px;font-size:10px;margin-bottom:4px}
+.ch-bg{height:7px;background:var(--border);border-radius:4px;position:relative;overflow:hidden}
+.ch-fill{height:100%;border-radius:4px;position:absolute;left:0;top:0}
+.ch-val{font-family:var(--mono);text-align:right;color:var(--text)}
+.ch-th{border-top:1px dashed var(--danger);padding-top:5px;margin-top:4px}
+.ch-tl{font-family:var(--mono);font-size:8px;color:var(--danger)}
 
-  /* ─── SLIDE-SPECIFIC ─────────────────────── */
-  .cover-eyebrow { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
-  .cover-bottom { margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 1px solid var(--border); }
-  .cover-bottom .date { font-size: 12px; color: var(--muted); }
+/* principle */
+.pr-item{display:flex;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--border)}
+.pr-item:last-child{border-bottom:none}
+.pr-n{font-family:var(--mono);font-size:9px;color:var(--muted);width:16px;flex-shrink:0;margin-top:2px}
+.pr-t{font-weight:600;font-size:12px;margin-bottom:2px}
+.pr-d{font-size:11px;color:var(--muted);line-height:1.4}
 
-  .metric-row { display: flex; gap: 24px; }
-  .metric { display: flex; flex-direction: column; gap: 2px; }
-  .metric-val { font-family: var(--font-serif); font-size: 32px; font-weight: 600; line-height: 1; }
-  .metric-lbl { font-size: 12px; color: var(--muted); }
+/* cover */
+.cov-ey{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.cov-bt{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--border)}
 
-  .arch-flow {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px 24px;
-    line-height: 2;
-    color: var(--text);
-    flex: 1;
-  }
-  .arch-flow .hl-blue  { color: var(--accent); font-weight: 500; }
-  .arch-flow .hl-red   { color: var(--danger); font-weight: 500; }
-  .arch-flow .hl-amber { color: var(--warning); font-weight: 500; }
-  .arch-flow .hl-green { color: var(--success); font-weight: 500; }
+/* delta */
+.delta-g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.delta-v{font-family:var(--mono);font-size:15px;line-height:1}
+.delta-l{font-size:9px;color:var(--muted);margin-top:2px}
 
-  .step-row { display: grid; grid-template-columns: 28px 1fr 1.4fr; gap: 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .step-row:last-child { border-bottom: none; }
-  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--muted); flex-shrink: 0; }
-  .step-action { font-size: 13px; font-weight: 500; }
-  .step-desc { font-size: 12px; color: var(--muted); }
-
-  /* ─── NAVIGATION ─────────────────────────── */
-  #nav {
-    display: flex; align-items: center; gap: 20px;
-    width: var(--slide-w);
-  }
-  .nav-btn {
-    width: 36px; height: 36px;
-    border: 1px solid var(--border);
-    background: var(--white);
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; color: var(--text);
-    transition: all .15s;
-    flex-shrink: 0;
-  }
-  .nav-btn:hover { background: var(--bg); border-color: #C8C4BF; }
-  .nav-btn:disabled { opacity: .3; cursor: default; }
-
-  #dots {
-    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--border);
-    cursor: pointer;
-    transition: all .2s;
-  }
-  .dot.active { background: var(--text); width: 18px; border-radius: 3px; }
-
-  .progress-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    flex-shrink: 0;
-    min-width: 36px;
-    text-align: right;
-  }
+/* nav */
+#nav{display:flex;align-items:center;gap:16px;width:var(--W)}
+.nb{width:32px;height:32px;border:1px solid var(--border);background:var(--white);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text);transition:all .15s;flex-shrink:0}
+.nb:hover{background:var(--bg);border-color:#C8C4BF}.nb:disabled{opacity:.3;cursor:default}
+#dots{flex:1;display:flex;align-items:center;justify-content:center;gap:4px}
+.dot{width:4px;height:4px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s}
+.dot.active{background:var(--text);width:14px;border-radius:2px}
+.pl{font-family:var(--mono);font-size:10px;color:var(--muted);flex-shrink:0;min-width:36px;text-align:right}
 </style>
 </head>
 <body>
-
 <div id="stage">
-  <div id="deck">
+<div id="deck">
 
-    <!-- ══ SLIDE 1: COVER ══════════════════════════════════════════ -->
-    <div class="slide active">
-      <div class="cover-eyebrow">Technical PM Interview Assignment · AI & IoT</div>
-      <h1 class="huge">HomeWellness<br>Companion</h1>
-      <p class="lead" style="margin-top:16px;">主動感知、溫暖開口的 AI 健康伴侶<br>為獨居長者設計</p>
-      <div class="tags" style="margin-top:20px;">
-        <span class="tag blue">IoT 感測器</span>
-        <span class="tag blue">Multi-Agent</span>
-        <span class="tag blue">Proactive AI</span>
-        <span class="tag">LangChain</span>
-        <span class="tag">Streamlit</span>
-        <span class="tag">APScheduler</span>
-      </div>
-      <div class="cover-bottom">
-        <div>
-          <div style="font-size:13px;font-weight:500;">CareAgent × AnalysisAgent × AlertAgent</div>
-          <div class="date" style="margin-top:3px;">gpt-4o-mini · Gemini 2.5 Flash · cron-as-tool</div>
-        </div>
-        <div class="date">2026</div>
-      </div>
+<!-- 01 COVER -->
+<div class="slide active">
+  <div class="cov-ey">Technical PM Interview Assignment · AI &amp; IoT</div>
+  <h1 class="huge">HomeWellness<br>Companion</h1>
+  <p class="lead" style="margin-top:12px;">主動感知、溫暖開口的 AI 健康伴侶<br>為獨居長者設計</p>
+  <div class="tags" style="margin-top:16px;">
+    <span class="tag b">IoT 感測器</span><span class="tag b">Multi-Agent</span><span class="tag b">Proactive AI</span>
+    <span class="tag">LangChain 1.x</span><span class="tag">Streamlit</span><span class="tag">APScheduler</span>
+    <span class="tag p">cron-as-tool</span><span class="tag g">63 tests</span>
+  </div>
+  <div class="cov-bt">
+    <div>
+      <div style="font-size:12px;font-weight:500;">CareAgent × AnalysisAgent × AlertAgent</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px;">gpt-4o-mini · Gemini 2.5 Flash · Python 3.10+</div>
     </div>
+    <div style="font-size:10px;color:var(--muted);">2026</div>
+  </div>
+</div>
 
-    <!-- ══ SLIDE 2: PROBLEM ════════════════════════════════════════ -->
-    <div class="slide">
-      <div class="slide-meta">
-        <span class="slide-num">02</span>
-        <span class="slide-tag danger">Problem</span>
-      </div>
-      <h2>獨居長者的健康守護缺口</h2>
-      <div class="cols cols-12" style="flex:1;align-items:start;">
-        <div>
-          <div class="stat">
-            <span class="stat-number">54萬</span>
-            <span class="stat-label">台灣 65 歲以上獨居長者</span>
-          </div>
-          <div style="margin-top:20px;" class="stat">
-            <span class="stat-number" style="color:var(--danger);">2–4h</span>
-            <span class="stat-label">從健康異常到被發現</span>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div class="callout danger" style="margin:0;"><strong>核心問題：</strong> 現有方案全是「被動等求助」——長者要自己求助，但危機時往往沒有能力開口</div>
-          <div class="card" style="font-size:13px;">
-            <div style="display:flex;flex-direction:column;gap:8px;">
-              <div>🚨 <strong>緊急按鈕</strong> — 昏迷時無法按下</div>
-              <div>💬 <strong>家屬 LINE</strong> — 長者不主動說「我不舒服」</div>
-              <div>📞 <strong>定時電話</strong> — 危機在兩通之間悄悄發生</div>
-              <div>📱 <strong>健康 App</strong> — 長者操作困難，主動性低</div>
-            </div>
-          </div>
+<!-- 02 PROBLEM -->
+<div class="slide">
+  <div class="sm"><span class="sn">02</span><span class="st d">Problem</span></div>
+  <h2>獨居長者的健康守護缺口</h2>
+  <div class="g g12" style="flex:1;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div><div class="stat-n">54萬</div><div class="stat-l">台灣 65 歲以上獨居長者</div></div>
+      <div><div class="stat-n" style="color:var(--danger);">2–4h</div><div class="stat-l">從健康異常到被發現</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="co d" style="margin:0;font-size:13px;"><strong>核心問題：</strong>現有方案全是「被動等求助」</div>
+      <div class="card" style="font-size:12px;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div>🚨 <strong>緊急按鈕</strong> — 昏迷時無法自行按下</div>
+          <div>💬 <strong>家屬 LINE</strong> — 長者不主動說「我不舒服」</div>
+          <div>📞 <strong>定時電話</strong> — 危機在兩通之間悄悄發生</div>
+          <div>📱 <strong>健康 App</strong> — 長者操作困難，主動性低</div>
         </div>
       </div>
+      <div class="co w" style="margin:0;font-size:12px;">平均每位台灣獨居老人，一天只有 <strong>1.3 次</strong> 與外界的有效互動</div>
     </div>
+  </div>
+</div>
 
-    <!-- ══ SLIDE 3: SOLUTION ═══════════════════════════════════════ -->
-    <div class="slide">
-      <div class="slide-meta">
-        <span class="slide-num">03</span>
-        <span class="slide-tag accent">Solution</span>
-      </div>
-      <h2>讓 AI 主動開口</h2>
-      <div class="callout accent" style="font-size:15px;font-weight:500;">
-        APScheduler 每 5 秒讀取生理數據，異常偵測到 AI 開口 &lt; <strong>10 秒</strong>
-      </div>
-      <div style="margin:20px 0;font-size:22px;font-family:var(--font-serif);color:var(--muted);text-align:center;letter-spacing:.05em;">
-        Reactive &nbsp;→&nbsp; <span style="color:var(--text);font-weight:600;">Proactive</span>
-      </div>
-      <div class="flow" style="justify-content:center;">
-        <div class="flow-step">IoT 感測器<br><span style="font-size:11px;opacity:.6;">每 5 秒</span></div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-step amber">閾值偵測<br><span style="font-size:11px;opacity:.6;">心率 / 血氧 / 血壓</span></div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-step blue">CareAgent<br><span style="font-size:11px;opacity:.6;">主動開口</span></div>
-        <span class="flow-arrow">→</span>
-        <div class="flow-step red">AlertAgent<br><span style="font-size:11px;opacity:.6;">必要時通報</span></div>
-      </div>
-      <div class="callout success" style="margin-top:16px;font-size:13px;">
-        不等長者求救 — AI 先問：<em>「阿嬤，我看到你心跳快了一點，你現在坐著嗎？有哪裡不舒服嗎？」</em>
-      </div>
+<!-- 03 PERSONA -->
+<div class="slide">
+  <div class="sm"><span class="sn">03</span><span class="st w">User Persona</span></div>
+  <h2>認識使用者</h2>
+  <div class="pr">
+    <div class="pa">👵</div>
+    <div><div class="pn">陳阿嬤（陳美蘭）</div><div class="ps">78 歲 · 台北獨居 · 子女在外縣市工作</div></div>
+  </div>
+  <div class="g g3" style="flex:1;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="card"><h3>健康狀況</h3><p>高血壓 · 第二型糖尿病</p></div>
+      <div class="card"><h3>每日用藥</h3><p>08:00 降血壓藥 Amlodipine 5mg<br>13:00 維生素 D<br>19:00 Metformin 500mg</p></div>
+      <div class="card"><h3>緊急聯絡</h3><p>陳大文（兒子）0912-345-678</p></div>
     </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="card"><h3>行為特徵</h3><p>不主動求助 · 怕麻煩家人 · 操作手機困難 · 對警報聲感到壓力與焦慮</p></div>
+      <div class="card"><h3>一天行程</h3><p style="font-size:10px;line-height:1.7;">08:00 起床早餐 → 10:00 散步看電視 → 13:00 午休 → 15:00 打電話 → 19:00 晚餐 → 22:00 就寢</p></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="co w" style="margin:0;font-size:11px;"><strong>Design Implication</strong><br>她需要的不是「系統」，而是像孫子一樣關心她的陪伴者</div>
+      <div class="card"><h3>Jobs-to-be-Done</h3><p>「不舒服的時候，有人主動發現並關心我——不是讓我自己想辦法求助」</p></div>
+      <div class="card"><h3>警戒信號</h3><p>心率 &gt;120 bpm · 血氧 &lt;90% · 收縮壓 &gt;140 mmHg</p></div>
+    </div>
+  </div>
+</div>
 
-    <!-- ══ SLIDE 4: ARCHITECTURE ═══════════════════════════════════ -->
-    <div class="slide">
-      <div class="slide-meta">
-        <span class="slide-num">04</span>
-        <span class="slide-tag">Architecture</span>
-      </div>
-      <h2>系統架構</h2>
-      <div class="arch-flow">
-<span class="hl-blue">IoT Sensor（mock_sensors.py）</span>
-  └─ APScheduler 每 5 秒輪詢
+<!-- 04 SOLUTION -->
+<div class="slide">
+  <div class="sm"><span class="sn">04</span><span class="st a">Solution</span></div>
+  <h2>讓 AI 主動開口</h2>
+  <div class="co a" style="font-size:14px;font-weight:500;margin-bottom:16px;">
+    APScheduler 每 5 秒讀取生理數據，異常偵測到 AI 開口 &lt; <strong>10 秒</strong>
+  </div>
+  <div style="font-size:20px;font-family:var(--serif);color:var(--muted);text-align:center;letter-spacing:.05em;margin:10px 0;">
+    Reactive &nbsp;→&nbsp; <span style="color:var(--text);font-weight:600;">Proactive</span>
+  </div>
+  <div class="flow" style="justify-content:center;margin:14px 0;">
+    <div class="fs">IoT 感測<br><span style="font-size:9px;opacity:.6;">每 5 秒</span></div>
+    <span class="fa">→</span>
+    <div class="fs w">閾值偵測<br><span style="font-size:9px;opacity:.6;">心率/血氧/血壓</span></div>
+    <span class="fa">→</span>
+    <div class="fs b">CareAgent 開口<br><span style="font-size:9px;opacity:.6;">&lt; 10 秒</span></div>
+    <span class="fa">→</span>
+    <div class="fs r">AlertAgent 通報<br><span style="font-size:9px;opacity:.6;">必要時</span></div>
+    <span class="fa">→</span>
+    <div class="fs p">自動追蹤<br><span style="font-size:9px;opacity:.6;">N 分後</span></div>
+  </div>
+  <div class="co s" style="font-size:12px;">
+    <em>「阿嬤，我看到你心跳快了一點，你現在坐著嗎？有哪裡不舒服嗎？」</em><br>
+    <span style="font-size:10px;margin-top:3px;display:block;">不等長者求救——AI 先問，貼心晚輩口吻，不製造焦慮</span>
+  </div>
+</div>
+
+<!-- 05 10秒承諾 -->
+<div class="slide">
+  <div class="sm"><span class="sn">05</span><span class="st a">Core Promise</span></div>
+  <h2>10 秒承諾——從異常到 AI 開口</h2>
+  <div class="tl" style="margin-bottom:18px;">
+    <div class="tl-s" style="background:var(--success-l);border-color:#A7F3D0;">
+      <div class="tl-t">t = 0s</div>
+      <div class="tl-h" style="color:var(--success);">異常發生</div>
+      <div class="tl-d">心率 125 bpm<br>血氧 88%<br>收縮壓 168</div>
+    </div>
+    <div class="tl-s">
+      <div class="tl-t">t ≤ 5s</div>
+      <div class="tl-h">APScheduler</div>
+      <div class="tl-d">get_mock_vitals() 超閾值，寫入 pending_proactive</div>
+    </div>
+    <div class="tl-s">
+      <div class="tl-t">t ≈ 5–8s</div>
+      <div class="tl-h">st.rerun()</div>
+      <div class="tl-d">Streamlit 重跑，頂部 proactive 檢查觸發</div>
+    </div>
+    <div class="tl-s" style="background:var(--accent-l);border-color:#BFCFFF;">
+      <div class="tl-t">&lt; 10s</div>
+      <div class="tl-h" style="color:var(--accent);">CareAgent 開口</div>
+      <div class="tl-d">「阿嬤，我看到你心跳快了一點…」</div>
+    </div>
+    <div class="tl-s" style="background:var(--danger-l);border-color:#FECACA;">
+      <div class="tl-t">視情況</div>
+      <div class="tl-h" style="color:var(--danger);">AlertAgent</div>
+      <div class="tl-d">send_emergency_alert + schedule_followup</div>
+    </div>
+  </div>
+  <div class="g g3">
+    <div class="co s" style="margin:0;font-size:11px;"><strong>正常 →</strong> 繼續輪詢，無任何動作</div>
+    <div class="co w" style="margin:0;font-size:11px;"><strong>超閾值 →</strong> 10 秒內主動開口</div>
+    <div class="co d" style="margin:0;font-size:11px;"><strong>持續異常 →</strong> AlertAgent 通報家屬</div>
+  </div>
+</div>
+
+<!-- 06 ARCHITECTURE -->
+<div class="slide">
+  <div class="sm"><span class="sn">06</span><span class="st">Architecture</span></div>
+  <h2>系統架構</h2>
+  <div class="af">
+<span class="hb">IoT Sensor（mock_sensors.py）</span>
+  └─ <span class="hm">APScheduler 每 5 秒輪詢</span>
        ├─ 正常 → 繼續輪詢
-       └─ <span class="hl-amber">異常 → pending_proactive → st.rerun()</span>
+       └─ <span class="hw">異常 → pending_proactive → st.rerun()</span>
                     ↓
-          <span class="hl-blue">CareAgent（gpt-4o-mini）— 主控 Orchestrator</span>
+          <span class="hb">CareAgent（gpt-4o-mini）— 主控 Orchestrator · Session 記憶</span>
               ├─ 工具：get_vitals / get_sleep_report / get_medication_schedule
-              ├─ 趨勢問題 → <span class="hl-green">AnalysisAgent（Gemini 2.5 Flash）→ get_health_trend(N)</span>
-              └─ 數值異常 → <span class="hl-red">AlertAgent（gpt-4o-mini）→ send_emergency_alert(reason)</span>
-                                  └─ <span class="hl-amber">schedule_followup(reason) → Timer → N 分後重入</span>
-      </div>
-      <p style="margin-top:12px;">警報閾值：心率 &gt;120 或 &lt;50 bpm ／ 血氧 &lt;90% ／ 收縮壓 &gt;140 mmHg</p>
-    </div>
+              ├─ 趨勢問題 → <span class="hg">AnalysisAgent（Gemini 2.5 Flash）→ get_health_trend(N)</span>
+              └─ 數值異常 → <span class="hr2">AlertAgent（gpt-4o-mini）</span>
+                                  ├─ send_emergency_alert(reason)  <span class="hm">→ 通報家屬</span>
+                                  └─ <span class="hw">schedule_followup(reason) → Timer → N 分後重入系統</span>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:10px;">
+    <div class="co a" style="margin:0;flex:1;font-size:11px;">心率 &gt;120 或 &lt;50 bpm</div>
+    <div class="co d" style="margin:0;flex:1;font-size:11px;">血氧 &lt; 90%</div>
+    <div class="co w" style="margin:0;flex:1;font-size:11px;">收縮壓 &gt; 140 mmHg</div>
+  </div>
+</div>
 
-    <!-- ══ SLIDE 5: MULTI-AGENT DESIGN ════════════════════════════ -->
-    <div class="slide">
-      <div class="slide-meta">
-        <span class="slide-num">05</span>
-        <span class="slide-tag accent">Multi-Agent Design</span>
-      </div>
-      <h2>三個 Agent 的分工</h2>
-      <div style="display:flex;flex-direction:column;gap:12px;flex:1;">
-        <div class="agent-card" style="border-left:3px solid var(--accent);">
-          <div class="agent-name">🤖 CareAgent — 主控 Orchestrator</div>
-          <div class="agent-model">gpt-4o-mini · Session 記憶（_AgentWithMemory）</div>
-          <div class="agent-role">主對話、委派決策、Session 記憶；每則訊息只說一件事，用名字不用「用戶」</div>
-          <div class="agent-tools">
-            <span class="agent-tool">get_vitals</span>
-            <span class="agent-tool">get_sleep_report</span>
-            <span class="agent-tool">get_medication_schedule</span>
-          </div>
-        </div>
-        <div class="agent-card" style="border-left:3px solid var(--success);">
-          <div class="agent-name">🧪 AnalysisAgent — 深度趨勢分析</div>
-          <div class="agent-model">Gemini 2.5 Flash · Stateless（無記憶，每次獨立）</div>
-          <div class="agent-role">近 N 天生理趨勢分析、異常模式識別、結構化摘要回傳 CareAgent</div>
-          <div class="agent-tools"><span class="agent-tool">get_health_trend(days=N)</span></div>
-        </div>
-        <div class="agent-card" style="border-left:3px solid var(--danger);">
-          <div class="agent-name">🚨 AlertAgent — 緊急評估與通報</div>
-          <div class="agent-model">gpt-4o-mini · Stateless · cron-as-tool 自排程</div>
-          <div class="agent-role">確認最新數值、評估是否通報、執行通報、自排程 N 分後追蹤確認</div>
-          <div class="agent-tools">
-            <span class="agent-tool">get_vitals</span>
-            <span class="agent-tool">send_emergency_alert</span>
-            <span class="agent-tool">schedule_followup ✦</span>
-          </div>
-        </div>
-      </div>
-      <p style="margin-top:10px;font-size:12px;">✦ <strong>最小權限原則</strong>：每個 Agent 只持有它需要的工具，send_emergency_alert 不授予 CareAgent</p>
+<!-- 07 MULTI-AGENT -->
+<div class="slide">
+  <div class="sm"><span class="sn">07</span><span class="st a">Multi-Agent Design</span></div>
+  <h2>三個 Agent 的分工</h2>
+  <div style="display:flex;flex-direction:column;gap:9px;flex:1;">
+    <div class="ac" style="border-left:3px solid var(--accent);">
+      <div class="ac-n">🤖 CareAgent — 主控 Orchestrator</div>
+      <div class="ac-m">gpt-4o-mini · Session 記憶（_AgentWithMemory + InMemoryChatMessageHistory）</div>
+      <div class="ac-r">主對話、委派決策、整合子代理回應；每則訊息只說一件事，記住對話中說過的事，不重複詢問</div>
+      <div class="ac-t"><span class="ac-tool">get_vitals</span><span class="ac-tool">get_sleep_report</span><span class="ac-tool">get_medication_schedule</span><span class="ac-tool">call_analysis_agent</span><span class="ac-tool">call_alert_agent</span></div>
     </div>
+    <div class="ac" style="border-left:3px solid var(--success);">
+      <div class="ac-n">🧪 AnalysisAgent — 深度趨勢分析</div>
+      <div class="ac-m">Gemini 2.5 Flash（預設，可切換）· Stateless · 長上下文適合歷史數據</div>
+      <div class="ac-r">近 N 天生理趨勢分析、異常模式識別、結構化摘要（3–5 行）回傳給 CareAgent</div>
+      <div class="ac-t"><span class="ac-tool">get_health_trend(days=N)</span></div>
+    </div>
+    <div class="ac" style="border-left:3px solid var(--danger);">
+      <div class="ac-n">🚨 AlertAgent — 緊急評估與通報</div>
+      <div class="ac-m">gpt-4o-mini · Stateless · 低延遲優先 · cron-as-tool 自排程追蹤</div>
+      <div class="ac-r">確認最新數值 → 評估是否通報 → 執行通報 → 自排程 N 分後追蹤確認</div>
+      <div class="ac-t"><span class="ac-tool">get_vitals</span><span class="ac-tool">send_emergency_alert</span><span class="ac-tool" style="border-color:#DDD6FE;color:var(--purple);background:var(--purple-l);">schedule_followup ✦</span></div>
+    </div>
+  </div>
+  <p style="margin-top:8px;font-size:10px;">✦ <strong>最小權限原則</strong>：send_emergency_alert 不授予 CareAgent；get_health_trend 只給 AnalysisAgent</p>
+</div>
 
-    <!-- ══ SLIDE 6: CRON-AS-TOOL ═══════════════════════════════════ -->
-    <div class="slide">
-      <div class="slide-meta">
-        <span class="slide-num">06</span>
-        <span class="slide-tag warning">Cron-as-Tool</span>
-      </div>
-      <h2>Agent 自排程追蹤機制</h2>
-      <div class="cols cols-2" style="flex:1;align-items:start;gap:24px;">
-        <div>
-          <p style="margin-bottom:12px;font-size:14px;color:var(--text);">AlertAgent 通報後，不依賴外部 Cron——<strong>Agent 自己呼叫工具排程追蹤</strong></p>
-          <div class="arch-flow" style="font-size:11px;line-height:1.9;flex:none;padding:16px 18px;">
-<span class="hl-red">AlertAgent</span> 通報完成
-  └─ 呼叫 <span class="hl-amber">schedule_followup(reason)</span>
-       └─ threading.Timer(N×60s, _enqueue)
-            └─ <span class="hl-green">followup_queue.append(msg)</span>
+<!-- 08 TOOL DESIGN -->
+<div class="slide">
+  <div class="sm"><span class="sn">08</span><span class="st">Tool Design · 最小權限</span></div>
+  <h2>6 個工具 · 最小權限原則</h2>
+  <div class="tw" style="margin-bottom:12px;">
+    <table>
+      <thead><tr><th>工具</th><th>CareAgent</th><th>AnalysisAgent</th><th>AlertAgent</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>get_vitals()</code></td><td style="text-align:center;color:var(--success);">✓</td><td style="text-align:center;color:var(--muted);">—</td><td style="text-align:center;color:var(--success);">✓</td><td style="color:var(--muted);">心率/血氧/血壓/步數/溫度</td></tr>
+        <tr><td><code>get_sleep_report()</code></td><td style="text-align:center;color:var(--success);">✓</td><td style="text-align:center;color:var(--muted);">—</td><td style="text-align:center;color:var(--muted);">—</td><td style="color:var(--muted);">昨晚睡眠報告</td></tr>
+        <tr><td><code>get_medication_schedule()</code></td><td style="text-align:center;color:var(--success);">✓</td><td style="text-align:center;color:var(--muted);">—</td><td style="text-align:center;color:var(--muted);">—</td><td style="color:var(--muted);">今日用藥計畫</td></tr>
+        <tr><td><code>get_health_trend(days)</code></td><td style="text-align:center;color:var(--muted);">—</td><td style="text-align:center;color:var(--success);">✓</td><td style="text-align:center;color:var(--muted);">—</td><td style="color:var(--muted);">近 N 天生理趨勢</td></tr>
+        <tr><td><code>send_emergency_alert(reason)</code></td><td style="text-align:center;color:var(--muted);">—</td><td style="text-align:center;color:var(--muted);">—</td><td style="text-align:center;color:var(--success);">✓</td><td style="color:var(--muted);">通報緊急聯絡人</td></tr>
+        <tr><td><code>schedule_followup(reason, delay)</code></td><td style="text-align:center;color:var(--muted);">—</td><td style="text-align:center;color:var(--muted);">—</td><td style="text-align:center;color:var(--purple);">✓</td><td style="color:var(--muted);">cron-as-tool 自排程追蹤</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="co a" style="font-size:12px;">
+    <strong>Docstring = Tool Description：</strong>LangChain 把 @tool 的 docstring 傳給 LLM，LLM 靠它決定何時呼叫。docstring 必須說明「做什麼」「何時呼叫」「參數說明」——這是 prompt engineering 的一部分。
+  </div>
+</div>
+
+<!-- 09 CRON-AS-TOOL -->
+<div class="slide">
+  <div class="sm"><span class="sn">09</span><span class="st p">Cron-as-Tool</span></div>
+  <h2>Agent 自排程追蹤機制</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div>
+      <p style="font-size:13px;color:var(--text);margin-bottom:10px;">AlertAgent 通報後，<strong>自己呼叫工具排程未來追蹤</strong>——不依賴外部 Cron</p>
+      <div class="af" style="font-size:10.5px;line-height:1.9;padding:13px 16px;">
+<span class="hr2">AlertAgent</span> 通報完成
+  └─ 呼叫 <span class="hw">schedule_followup(reason)</span>
+       └─ from agent.scheduler_tools import ...
+            └─ actual = delay or get_default_followup_minutes()
+                 └─ threading.Timer(actual×60, _enqueue)
+                      └─ <span class="hg">followup_queue.append(msg)</span>
 
 APScheduler 下一個 5s tick
   └─ pop_followup() 取出訊息
        └─ pending_proactive = msg
-            └─ <span class="hl-blue">CareAgent 主動追蹤確認</span>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div class="callout warning" style="margin:0;font-size:13px;">
-            <strong>靈感來源</strong><br>OpenClaw 的 cron-as-first-class-tool 概念：把「排程」當成 Agent 可呼叫的工具，而非外部基礎設施
-          </div>
-          <div class="card">
-            <h3>Sidebar 設定</h3>
-            <p>追蹤間隔 1–120 分鐘可即時調整，不需重啟 Agent；tool 呼叫時才讀全域設定值</p>
-          </div>
-          <div class="card">
-            <h3>追蹤訊息範例</h3>
-            <p style="font-family:var(--font-mono);font-size:11px;margin-top:4px;">「阿嬤，剛才心跳有點快，現在感覺怎麼樣？有好一點嗎？」</p>
-          </div>
-        </div>
-      </div>
+            └─ <span class="hb">CareAgent 主動追蹤確認</span></div>
     </div>
-
-    <!-- ══ SLIDE 7: DEMO SCRIPT ════════════════════════════════════ -->
-    <div class="slide">
-      <div class="slide-meta">
-        <span class="slide-num">07</span>
-        <span class="slide-tag">Live Demo · 5 Steps</span>
-      </div>
-      <h2>Demo 腳本（3 分鐘）</h2>
-      <div class="table-wrap" style="margin-top:8px;">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:28px;">#</th>
-              <th>操作</th>
-              <th>展示重點</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><div class="step-num" style="margin:0;">1</div></td>
-              <td>點擊「🌅 模擬早晨問候」</td>
-              <td style="color:var(--muted);">Proactive Trigger + Session 記憶（姓名、病史、用藥）</td>
-            </tr>
-            <tr>
-              <td><div class="step-num" style="margin:0;">2</div></td>
-              <td>輸入「我今天頭有點暈」</td>
-              <td style="color:var(--muted);">Tool Calling → <code>get_vitals()</code> 讀取即時血壓 / 心率 / 血氧</td>
-            </tr>
-            <tr>
-              <td><div class="step-num" style="margin:0;">3</div></td>
-              <td>場景切「心跳過快」→ 等 5s</td>
-              <td style="color:var(--muted);">APScheduler 閾值觸發 → AlertAgent → <code>send_emergency_alert()</code></td>
-            </tr>
-            <tr>
-              <td><div class="step-num" style="margin:0;">4</div></td>
-              <td>輸入「這週健康狀況怎麼樣？」</td>
-              <td style="color:var(--muted);">CareAgent 委派 → AnalysisAgent → <code>get_health_trend(7)</code></td>
-            </tr>
-            <tr>
-              <td><div class="step-num" style="margin:0;">5</div></td>
-              <td>場景切「高血壓」→ 等 5s</td>
-              <td style="color:var(--muted);">收縮壓 &gt;140 mmHg → 主動關懷 + schedule_followup 排程追蹤</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="callout accent" style="margin-top:14px;font-size:13px;">
-        Sidebar：即時切換 3 個 Agent 的 LLM（OpenAI / Gemini）・效能監控（延遲 / Token / 費用）・追蹤間隔設定
-      </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="co p" style="margin:0;font-size:11px;"><strong>靈感：OpenClaw cron-as-first-class-tool</strong><br>把「排程」當成 Agent 可呼叫的工具，而非外部基礎設施</div>
+      <div class="card"><h3>Sidebar 即時設定</h3><p>追蹤間隔 1–120 分鐘可即時調整，不需重啟 Agent。tool 呼叫時讀全域設定 <code>get_default_followup_minutes()</code></p></div>
+      <div class="card"><h3>scheduler_tools.py</h3><p><code>_followup_queue: list[str]</code> 模組級佇列，<code>threading.Timer</code> 背景執行緒寫入，APScheduler 主執行緒 <code>pop_followup()</code> 讀取</p></div>
+      <div class="card"><h3>生產對應</h3><p><code>threading.Timer</code> → AWS EventBridge Scheduler（持久化，服務重啟不丟失）</p></div>
     </div>
-
-    <!-- ══ SLIDE 8: PERFORMANCE ════════════════════════════════════ -->
-    <div class="slide">
-      <div class="slide-meta">
-        <span class="slide-num">08</span>
-        <span class="slide-tag">Metrics & Performance</span>
-      </div>
-      <h2>效能監控 & 關鍵指標</h2>
-      <div class="cols cols-2" style="flex:1;gap:24px;align-items:start;">
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div class="callout success" style="margin:0;">
-            <strong>Primary：</strong>異常事件 10 秒內觸發率 &gt; 95%<br>
-            <span style="font-size:12px;">APScheduler 5s polling → 閾值判斷 → pending_proactive</span>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>指標</th><th>目標</th></tr></thead>
-              <tbody>
-                <tr><td>CareAgent P90 延遲</td><td>&lt; 3s</td></tr>
-                <tr><td>Token 成本 / Session</td><td>&lt; $0.05</td></tr>
-                <tr><td>AlertAgent 假警報率</td><td>&lt; 5%</td></tr>
-                <tr><td>30 天趨勢圖更新</td><td>即時</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div class="card">
-            <h3>為什麼要加 Token 追蹤？</h3>
-            <p>PM 責任：讓工程成本可見，不是事後帳單驚喜。每次對話即時回傳延遲 / 輸入輸出 Token / 費用估算 / 累計統計</p>
-          </div>
-          <div class="card">
-            <h3>模型選擇依據</h3>
-            <p>gpt-4o-mini 低延遲適合即時對話；Gemini 2.5 Flash 長上下文適合趨勢分析。費用差異 Sidebar 即時可見</p>
-          </div>
-          <div class="card">
-            <h3>30 天趨勢儀表板</h3>
-            <p>獨立 Tab：心率 / 血氧 / 收縮壓折線圖 + 警報閾值虛線 + vs 昨日 delta</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ SLIDE 9: POC → AWS ══════════════════════════════════════ -->
-    <div class="slide">
-      <div class="slide-meta">
-        <span class="slide-num">09</span>
-        <span class="slide-tag">PoC → Production</span>
-      </div>
-      <h2>PoC → AWS 生產架構</h2>
-      <div class="table-wrap" style="flex:1;margin-top:8px;">
-        <table>
-          <thead>
-            <tr>
-              <th>PoC（現況）</th>
-              <th>AWS 生產對應</th>
-              <th>說明</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>mock_sensors.py</code></td>
-              <td>AWS IoT Core（MQTT/TLS）</td>
-              <td style="color:var(--muted);">穿戴裝置 BLE → 手機 → MQTT 推送</td>
-            </tr>
-            <tr>
-              <td>APScheduler 閾值判斷</td>
-              <td>Lambda anomaly-detector</td>
-              <td style="color:var(--muted);">每筆數據入 Kinesis 後觸發 Lambda</td>
-            </tr>
-            <tr>
-              <td><code>health_history.json</code></td>
-              <td>DynamoDB health_events</td>
-              <td style="color:var(--muted);">TTL 90 天，GSI 支援時間範圍查詢</td>
-            </tr>
-            <tr>
-              <td><code>streamlit run app.py</code></td>
-              <td>ECS Fargate（LangChain）</td>
-              <td style="color:var(--muted);">容器化，ALB 前端，Auto Scaling</td>
-            </tr>
-            <tr>
-              <td><code>send_emergency_alert()</code><br><span style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">目前為 print()</span></td>
-              <td>AWS SNS → SMS / LINE Notify</td>
-              <td style="color:var(--muted);">Topic 分層：家屬通知 / 診所通知</td>
-            </tr>
-            <tr>
-              <td><code>threading.Timer</code></td>
-              <td>EventBridge Scheduler</td>
-              <td style="color:var(--muted);">持久化排程，服務重啟不丟失</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ══ SLIDE 10: NEXT STEPS ════════════════════════════════════ -->
-    <div class="slide">
-      <div class="slide-meta">
-        <span class="slide-num">10</span>
-        <span class="slide-tag success">Takeaways</span>
-      </div>
-      <h2>Next Steps & PM Takeaways</h2>
-      <div class="cols cols-2" style="flex:1;gap:24px;align-items:start;">
-        <div>
-          <h3 style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">接下來要做</h3>
-          <ul class="bullet-list">
-            <li><strong>真實通知</strong>：Twilio SMS / AWS SNS，目前 <code>send_emergency_alert()</code> 僅 print()</li>
-            <li><strong>Claude 模型</strong>：llm_factory 加入 claude-sonnet-4-6 選項</li>
-            <li><strong>語音介面</strong>：Streamlit 語音輸入，降低長者打字門檻</li>
-            <li><strong>用藥追蹤</strong>：長者確認服藥後記入 history，避免重複提醒</li>
-          </ul>
-        </div>
-        <div>
-          <h3 style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">PM 決策紀錄</h3>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div class="card" style="padding:12px 14px;">
-              <div style="font-size:13px;font-weight:600;">Reactive → Proactive</div>
-              <div style="font-size:12px;color:var(--muted);margin-top:3px;">主動觸發而非等求助，把「等待」的責任從長者身上移走</div>
-            </div>
-            <div class="card" style="padding:12px 14px;">
-              <div style="font-size:13px;font-weight:600;">最小權限工具分配</div>
-              <div style="font-size:12px;color:var(--muted);margin-top:3px;">send_emergency_alert 只給 AlertAgent，避免 CareAgent 誤觸警報</div>
-            </div>
-            <div class="card" style="padding:12px 14px;">
-              <div style="font-size:13px;font-weight:600;">成本可見性從第一天起</div>
-              <div style="font-size:12px;color:var(--muted);margin-top:3px;">Token 追蹤不是最後才做，是 PM 對工程成本的基本責任</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /deck -->
-
-  <!-- Navigation -->
-  <div id="nav">
-    <button class="nav-btn" id="btn-prev" onclick="go(-1)">←</button>
-    <div id="dots"></div>
-    <span class="progress-label" id="progress">1 / 10</span>
-    <button class="nav-btn" id="btn-next" onclick="go(1)">→</button>
   </div>
-</div><!-- /stage -->
+</div>
 
+<!-- 10 SESSION MEMORY -->
+<div class="slide">
+  <div class="sm"><span class="sn">10</span><span class="st">Session Memory</span></div>
+  <h2>Session 記憶設計</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="co a" style="margin:0;font-size:11px;">
+        <strong>不使用</strong> <code>RunnableWithMessageHistory</code>（LangChain 1.x 已 deprecated）<br>
+        改用自建 <strong><code>_AgentWithMemory</code></strong> wrapper（agent/memory.py）
+      </div>
+      <div class="af" style="font-size:10px;line-height:1.9;padding:12px 15px;">
+<span class="hm">_AgentWithMemory.invoke(input, session_id)</span>
+  ├─ _store[session_id] → InMemoryChatMessageHistory
+  ├─ history.messages + HumanMessage(input)
+  ├─ graph.invoke({messages: [...]})
+  ├─ AIMessage → history.add_messages()
+  └─ 聚合 usage_metadata（Token 統計）
+       └─ return <span class="hg">{output, usage_metadata}</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="card"><h3>記憶什麼</h3><p>對話中說過的症狀 · 確認服藥 · 情緒狀態 · 家人提到的事 → 不重複詢問，對話有連貫感</p></div>
+      <div class="card"><h3>子代理不加記憶</h3><p>AnalysisAgent / AlertAgent 不包 memory wrapper，每次 stateless 獨立呼叫。只有 CareAgent 有 Session 記憶。</p></div>
+      <div class="card"><h3>Token 聚合邏輯</h3><p>從 LangGraph result 的每個 <code>AIMessage.usage_metadata</code> 彙整 input/output tokens，相容 OpenAI 與 Gemini 兩種格式</p></div>
+      <div class="card"><h3>清空時機</h3><p>Sidebar 切換模型組合時自動清空對話記錄，<code>st.session_state.messages = []</code> + <code>_store.clear()</code></p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 PROMPT ENGINEERING -->
+<div class="slide">
+  <div class="sm"><span class="sn">11</span><span class="st">Prompt Engineering</span></div>
+  <h2>三個 System Prompt 的設計</h2>
+  <div class="g g3" style="flex:1;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="co a" style="margin:0;font-size:11px;"><strong>build_care_prompt()</strong><br>CareAgent 主對話</div>
+      <div class="card"><p style="font-size:10px;line-height:1.6;">— 姓名、年齡、病史動態注入<br>— 用藥計畫（藥名 + 時間 + 是否隨餐）<br>— 對話規則 8 條（語氣、禁止診斷、委派條件）<br>— 何時 call_analysis_agent / call_alert_agent</p></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="co s" style="margin:0;font-size:11px;"><strong>build_analysis_prompt()</strong><br>AnalysisAgent 趨勢分析</div>
+      <div class="card"><p style="font-size:10px;line-height:1.6;">— 警報閾值參考動態注入<br>— 分析規則：使用 get_health_trend 後分析<br>— 輸出格式：趨勢方向 + 異常點 + 建議<br>— 回傳簡潔（3–5 行），給 CareAgent 用</p></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="co d" style="margin:0;font-size:11px;"><strong>build_alert_prompt()</strong><br>AlertAgent 緊急通報</div>
+      <div class="card"><p style="font-size:10px;line-height:1.6;">— 緊急聯絡人姓名 + 電話動態注入<br>— 觸發條件（閾值）動態注入<br>— 流程：get_vitals → 評估 → send_emergency_alert → schedule_followup<br>— 回應簡短有力，不超過 3 行</p></div>
+    </div>
+  </div>
+  <div class="co a" style="font-size:11px;margin-top:10px;">
+    <strong>設計原則：</strong>所有病患資料從 <code>health_profile.json</code> 動態讀取，不硬寫在程式碼中。更換病患只需換一個 JSON 檔案。
+  </div>
+</div>
+
+<!-- 12 LLM FACTORY -->
+<div class="slide">
+  <div class="sm"><span class="sn">12</span><span class="st">LLM Factory</span></div>
+  <h2>LLM Factory &amp; 模型可切換</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div>
+      <div class="af" style="font-size:10.5px;line-height:1.9;padding:13px 16px;">
+<span class="hm"># agent/llm_factory.py</span>
+AVAILABLE_MODELS = [
+  <span class="hg">"gpt-4o-mini"</span>,      <span class="hm"># 快·便宜·即時對話</span>
+  <span class="hg">"gpt-4o"</span>,           <span class="hm"># 強·慢·複雜推理</span>
+  <span class="hg">"gemini-2.5-flash"</span>,  <span class="hm"># 長上下文·分析</span>
+  <span class="hg">"gemini-2.5-pro"</span>,    <span class="hm"># 最強 Gemini</span>
+  <span class="hg">"gemini-2.0-flash"</span>,  <span class="hm"># 舊版備用</span>
+]
+
+def get_llm(model_name: str) → BaseChatModel:
+  if model_name.startswith("gpt"):
+    return ChatOpenAI(model=model_name, ...)
+  elif model_name.startswith("gemini"):
+    return ChatGoogleGenerativeAI(model=model_name, ...)</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="card"><h3>Sidebar 即時切換</h3><p>三個 Agent 各自 selectbox，模型組合（model_key）變更時自動重建 Agent 並清空對話記錄，不需重啟 Streamlit</p></div>
+      <div class="card"><h3>為什麼三個 Agent 用不同模型</h3><p><strong>CareAgent / AlertAgent</strong>：gpt-4o-mini，低延遲，即時對話不能慢<br><strong>AnalysisAgent</strong>：Gemini 2.5 Flash，長上下文，30 天數據分析更合適</p></div>
+      <div class="card"><h3>成本追蹤</h3><p><code>_MODEL_PRICES</code> dict，每次 invoke 後計算 <code>cost_usd = (input×price_in + output×price_out) / 1_000_000</code></p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 PENDING PROACTIVE -->
+<div class="slide">
+  <div class="sm"><span class="sn">13</span><span class="st a">Proactive Mechanism</span></div>
+  <h2>Pending Proactive 機制</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div>
+      <p style="font-size:13px;color:var(--text);margin-bottom:10px;">Streamlit 是同步渲染——背景執行緒無法直接更新 UI。<strong>用 session_state 作為訊息佇列橋接非同步事件。</strong></p>
+      <div class="af" style="font-size:10px;line-height:1.9;padding:13px 15px;">
+<span class="hm"># 背景執行緒（APScheduler）</span>
+def _proactive_monitor():
+  followup = <span class="hw">pop_followup()</span>  <span class="hm"># 先查 cron 佇列</span>
+  if followup:
+    session_state["pending_proactive"] = followup
+    return
+  vitals = get_mock_vitals()
+  if 超閾值:
+    session_state["pending_proactive"] = <span class="hr2">"（系統觸發）偵測到..."</span>
+
+<span class="hm"># 主執行緒（每次 rerun 頂部）</span>
+if session_state.pending_proactive:
+  _msg = session_state.pending_proactive
+  session_state.pending_proactive = <span class="hg">None</span>  <span class="hm"># 防重複</span>
+  _resp, _stats = <span class="hb">invoke_agent(..., _msg)</span>
+  st.rerun()</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="co a" style="margin:0;font-size:11px;"><strong>設計巧思：</strong><code>scheduler_started</code> flag 防止 Streamlit rerun 重複建立 APScheduler</div>
+      <div class="card"><h3>優先順序</h3><p>cron followup 佇列優先於 IoT 閾值觸發：先 <code>pop_followup()</code>，有則直接 return，確保追蹤訊息不被異常偵測覆蓋</p></div>
+      <div class="card"><h3>系統觸發標記</h3><p>所有 proactive 訊息加 <code>「（系統觸發）」</code> 前綴，讓 Agent 區分「背景觸發」與「長者輸入」，調整回應語氣</p></div>
+      <div class="card"><h3>防重複觸發</h3><p>寫入 pending_proactive 後即清空（設為 None），避免下一個 rerun 重複呼叫 Agent</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 VIBE DESIGN -->
+<div class="slide">
+  <div class="sm"><span class="sn">14</span><span class="st s">Vibe Design</span></div>
+  <h2>語氣設計——貼心晚輩，不是警報系統</h2>
+  <div style="display:flex;flex-direction:column;gap:7px;flex:1;">
+    <div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;margin-bottom:5px;">
+        <div class="cl" style="padding:0 12px;">❌ 警報系統語氣</div>
+        <div class="cl" style="padding:0 12px;">✅ 貼心晚輩語氣</div>
+      </div>
+      <div class="cr"><div class="cb">「警告：心率異常，請立即就醫！」</div><div class="cg">「阿嬤，心跳快了一點，你現在有哪裡不舒服嗎？」</div></div>
+      <div class="cr"><div class="cb">「08:00 服藥時間：Amlodipine 5mg。」</div><div class="cg">「早安！早餐後記得把血壓藥吃了，昨晚睡得好不好？」</div></div>
+      <div class="cr"><div class="cb">「已通報聯絡人。流程完成。」</div><div class="cg">「我已經告訴大文了，他知道你的情況，你先放輕鬆，我陪著你。」</div></div>
+      <div class="cr"><div class="cb">「正在讀取血壓數據。」</div><div class="cg">「頭有點暈嗎？我幫你量一下血壓，你先坐著別動。」→ get_vitals()</div></div>
+    </div>
+    <div class="co a" style="font-size:11px;margin-top:6px;">
+      <strong>設計規則（寫入 system prompt）：</strong>每則訊息只說一件事 · 句子不超過 2 行 · 用名字「阿嬤」不用「用戶」· 不作醫療診斷 · 遇異常：先安撫 → 說明 → 詢問
+    </div>
+  </div>
+</div>
+
+<!-- 15 IOT LAYER -->
+<div class="slide">
+  <div class="sm"><span class="sn">15</span><span class="st">IoT Layer &amp; Simulation</span></div>
+  <h2>IoT 資料層與場景模擬</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div>
+      <h3 style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">警報閾值（health_profile.json）</h3>
+      <div class="tw">
+        <div class="tr-row"><span class="tr-icon">💓</span><span class="tr-name">心率</span><span class="tr-val">&lt;50 或 &gt;120 bpm</span></div>
+        <div class="tr-row"><span class="tr-icon">🩸</span><span class="tr-name">血氧</span><span class="tr-val">&lt; 90%</span></div>
+        <div class="tr-row"><span class="tr-icon">🩺</span><span class="tr-name">收縮壓</span><span class="tr-val">&gt; 140 mmHg</span></div>
+        <div class="tr-row"><span class="tr-icon">🌡️</span><span class="tr-name">體溫</span><span class="tr-norm">環境溫度（僅顯示，無閾值）</span></div>
+        <div class="tr-row"><span class="tr-icon">🚶</span><span class="tr-name">步數</span><span class="tr-norm">今日步數（僅顯示，無閾值）</span></div>
+      </div>
+      <div class="co a" style="margin-top:10px;font-size:11px;"><code>set_vitals_override(dict)</code> 覆蓋數值；<code>set_simulate_abnormal(bool)</code> 整體切換</div>
+    </div>
+    <div>
+      <h3 style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">6 種場景模擬（Sidebar Radio）</h3>
+      <div class="sg">
+        <div class="si nrm"><div class="si-n">✅ 正常</div><div class="si-v">HR:75 SpO2:98%</div></div>
+        <div class="si act"><div class="si-n">❤️‍🔥 心跳過快</div><div class="si-v">HR:125 SpO2:88%</div></div>
+        <div class="si act"><div class="si-n">💔 心跳過慢</div><div class="si-v">HR:42 SpO2:96%</div></div>
+        <div class="si act"><div class="si-n">😮‍💨 低血氧</div><div class="si-v">HR:95 SpO2:85%</div></div>
+        <div class="si act"><div class="si-n">🩺 高血壓</div><div class="si-v">SBP:168 DBP:108</div></div>
+        <div class="si" style="border-style:dashed;"><div class="si-n">🎛️ 自訂</div><div class="si-v">Slider 自由調整</div></div>
+      </div>
+      <p style="margin-top:8px;font-size:10px;">異常場景 → APScheduler 5s 內偵測 → CareAgent 主動觸發。自訂模式支援心率 / 血氧 / 溫度 / 收縮壓 / 舒張壓獨立 Slider。</p>
+    </div>
+  </div>
+</div>
+
+<!-- 16 STREAMLIT UI -->
+<div class="slide">
+  <div class="sm"><span class="sn">16</span><span class="st">Streamlit UI Design</span></div>
+  <h2>Streamlit UI 佈局決策</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div>
+      <div class="af" style="font-size:10px;line-height:1.9;padding:12px 15px;">
+<span class="hb">Sidebar</span>
+  ├─ ⚙️ 模型設定（3 個 selectbox）
+  ├─ 📊 效能監控（延遲/Token/費用）
+  └─ ⏰ 追蹤設定（1–120 分鐘 slider）
+
+<span class="hg">st.tabs(["💬 即時監測", "📈 趨勢儀表板"])</span>
+
+tab_live → <span class="hw">st.columns([1, 2])</span>
+  col_data（左 1/3）
+    ├─ 📊 即時生理數據
+    ├─ 🎛️ 場景模擬（6 種）
+    ├─ 💊 今日用藥 + 時間編輯
+    └─ 🎮 Demo 控制台
+  col_chat（右 2/3）
+    └─ 💬 健康對話視窗（height=520）
+
+tab_trend → 4 欄 delta + Plotly 折線圖</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="card"><h3>為什麼用 Tabs 分頁</h3><p>即時對話與趨勢分析互相干擾。趨勢圖需要獨立空間展示 30 天數據，不應壓縮主對話視窗。</p></div>
+      <div class="card"><h3>用藥時間可調整</h3><p><code>st.time_input</code> + <code>med_overrides</code> session state，UI 上調整後立即反映在 Agent 使用的 prompt 中。重置按鈕清除 session key 回到預設。</p></div>
+      <div class="card"><h3>Demo 控制台</h3><p>「🌅 早晨問候」「🚨 模擬心率異常」兩個按鈕直接觸發 invoke_agent，不需等 APScheduler。展示用，方便面試 demo。</p></div>
+      <div class="card"><h3>模型切換不重啟</h3><p><code>model_key</code> = 三模型名稱組合，變更時 <code>pop("agent")</code> 強制重建，清空對話，但不需要重啟整個 Streamlit。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 17 LAZY IMPORT -->
+<div class="slide">
+  <div class="sm"><span class="sn">17</span><span class="st">Lazy Import · 架構防護</span></div>
+  <h2>循環 Import 防護機制</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div>
+      <div class="co d" style="margin:0 0 10px;font-size:12px;"><strong>問題：</strong>health_agent → analysis_agent → tools → health_agent 循環依賴</div>
+      <div class="af" style="font-size:10px;line-height:1.9;padding:12px 15px;">
+<span class="hm"># ❌ 模組頂端 import（循環 import 報錯）</span>
+from agent.analysis_agent import build_analysis_agent
+from agent.alert_agent import build_alert_agent
+
+<span class="hm"># ✅ 函式體內 lazy import（正確）</span>
+def build_agent(care_model, analysis_model, alert_model):
+  <span class="hg">from agent.analysis_agent import (</span>
+      <span class="hg">build_analysis_agent, invoke_analysis_agent)</span>
+  <span class="hg">from agent.alert_agent import (</span>
+      <span class="hg">build_alert_agent, invoke_alert_agent)</span>
+
+  analysis_graph = build_analysis_agent()
+  alert_graph = build_alert_agent()
+
+  <span class="hm"># 子代理包成 @tool（閉包捕捉 graph）</span>
+  @tool
+  def call_analysis_agent(query: str) → str:
+    return invoke_analysis_agent(analysis_graph, query)
+
+  @tool
+  def call_alert_agent(situation: str) → str:
+    return invoke_alert_agent(alert_graph, situation)</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="co a" style="margin:0;font-size:11px;"><strong>原理：</strong>Python 只在函式被呼叫時才執行函式體內的 import，此時模組已完整載入，不會觸發循環依賴</div>
+      <div class="card"><h3>閉包捕捉（Closure）</h3><p>子代理 @tool 函式定義在 build_agent() 內，透過閉包捕捉 analysis_graph / alert_graph 實例，每次呼叫都用同一個 graph 物件</p></div>
+      <div class="card"><h3>子代理 stateless 設計</h3><p>AnalysisAgent / AlertAgent 無記憶 wrapper，每次 graph.invoke() 都是全新 stateless 呼叫。只有 CareAgent 有 session 記憶。</p></div>
+      <div class="card"><h3>schedule_followup lazy import</h3><p>tools.py 的 schedule_followup 函式體內才 import scheduler_tools，同樣避免循環依賴問題</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 18 DATA MODEL -->
+<div class="slide">
+  <div class="sm"><span class="sn">18</span><span class="st">Data Model</span></div>
+  <h2>健康資料模型設計</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div>
+      <h3 style="margin-bottom:8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">health_profile.json（靜態）</h3>
+      <div class="af" style="font-size:9.5px;line-height:1.8;padding:12px 15px;">
+{
+  <span class="hg">"name"</span>: "陳阿嬤",  <span class="hg">"age"</span>: 78,
+  <span class="hg">"conditions"</span>: ["高血壓","第二型糖尿病"],
+  <span class="hg">"medications"</span>: [
+    {"name":"降血壓藥","time":"08:00","with_meal":true},
+    {"name":"維生素D","time":"13:00","with_meal":false},
+    {"name":"Metformin","time":"19:00","with_meal":true}
+  ],
+  <span class="hg">"emergency_contacts"</span>: [
+    {"name":"陳大文","relation":"兒子","phone":"0912-345-678"}
+  ],
+  <span class="hg">"alert_thresholds"</span>: {
+    "heart_rate_high": 120,  "heart_rate_low": 50,
+    "spo2_low": 90,  <span class="hw">"systolic_high": 140</span>
+  }
+}</div>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">health_history.json（近 30 天）</h3>
+      <div class="af" style="font-size:9.5px;line-height:1.8;padding:12px 15px;">
+[
+  {
+    <span class="hg">"date"</span>: "2026-05-27",
+    <span class="hg">"heart_rate_avg"</span>: 74.2,
+    <span class="hg">"spo2_avg"</span>: 97.8,
+    <span class="hg">"sleep_hours"</span>: 7.5,
+    <span class="hw">"blood_pressure_systolic_avg"</span>: 128.4,
+    <span class="hw">"blood_pressure_diastolic_avg"</span>: 82.1,
+    <span class="hg">"steps"</span>: 4321
+  }, ...  <span class="hm">// 30 筆</span>
+]</div>
+      <div class="co a" style="margin-top:8px;font-size:11px;">生產環境對應：DynamoDB health_events（TTL 90 天）+ user_profiles。更換病患只需換 JSON 檔，prompt 自動更新。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 19 TREND DASHBOARD -->
+<div class="slide">
+  <div class="sm"><span class="sn">19</span><span class="st">30-Day Dashboard</span></div>
+  <h2>30 天健康趨勢儀表板</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div class="cp">
+      <div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:7px;">💓 近 30 天心率均值 (bpm)</div>
+      <div class="ch-row"><span style="color:var(--muted);">5/27</span><div class="ch-bg"><div class="ch-fill" style="width:55%;background:var(--accent);"></div></div><span class="ch-val">74</span></div>
+      <div class="ch-row"><span style="color:var(--muted);">5/26</span><div class="ch-bg"><div class="ch-fill" style="width:62%;background:var(--accent);"></div></div><span class="ch-val">78</span></div>
+      <div class="ch-row"><span style="color:var(--muted);">5/25</span><div class="ch-bg"><div class="ch-fill" style="width:70%;background:var(--warning);"></div></div><span class="ch-val">85</span></div>
+      <div class="ch-row"><span style="color:var(--muted);">5/24</span><div class="ch-bg"><div class="ch-fill" style="width:52%;background:var(--accent);"></div></div><span class="ch-val">72</span></div>
+      <div class="ch-th"><span class="ch-tl">─ ─  警報閾值 120 bpm</span></div>
+      <hr style="margin:10px 0;border-color:#DDD6FE;" />
+      <div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:5px;">🩸 血氧 SpO2 (%)</div>
+      <div class="ch-row"><span style="color:var(--muted);">5/27</span><div class="ch-bg"><div class="ch-fill" style="width:92%;background:var(--success);"></div></div><span class="ch-val">97.8</span></div>
+      <div class="ch-row"><span style="color:var(--muted);">5/26</span><div class="ch-bg"><div class="ch-fill" style="width:90%;background:var(--success);"></div></div><span class="ch-val">97.1</span></div>
+      <div class="ch-th"><span class="ch-tl">─ ─  警報閾值 90%</span></div>
+      <hr style="margin:10px 0;border-color:#DDD6FE;" />
+      <div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:5px;">🩺 收縮壓 (mmHg)</div>
+      <div class="ch-row"><span style="color:var(--muted);">5/27</span><div class="ch-bg"><div class="ch-fill" style="width:65%;background:var(--warning);"></div></div><span class="ch-val">128</span></div>
+      <div class="ch-th"><span class="ch-tl">─ ─  警報閾值 140 mmHg</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="card"><h3>vs 昨日 Delta</h3><div class="delta-g" style="margin-top:7px;"><div><div class="delta-v" style="color:var(--success);">+2 bpm</div><div class="delta-l">心率</div></div><div><div class="delta-v" style="color:var(--accent);">-0.3%</div><div class="delta-l">血氧</div></div><div><div class="delta-v" style="color:var(--danger);">+8 mmHg</div><div class="delta-l">收縮壓</div></div><div><div class="delta-v" style="color:var(--success);">+520步</div><div class="delta-l">步數</div></div></div></div>
+      <div class="card"><h3>技術實作</h3><p>Plotly <code>make_subplots(rows=3, shared_xaxes=True)</code>，3 子圖共享 X 軸。<code>add_shape(xref="paper", yref="y/y2/y3")</code> 加警報閾值虛線。<code>charts.py: build_trend_chart(history, thresholds)</code></p></div>
+      <div class="card"><h3>Tab 設計</h3><p>獨立 Tab（📈 趨勢儀表板），不干擾主對話流程。歷史數據來自 <code>health_history.json</code>，每次 Tab 切換重新讀取最新數值。</p></div>
+      <div class="card"><h3>PM 決策</h3><p>趨勢可視化幫助家屬和醫護理解長期狀況，而不只是即時警報。長期趨勢比單點數值更有診斷價值。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 20 TESTING -->
+<div class="slide">
+  <div class="sm"><span class="sn">20</span><span class="st s">Testing · TDD</span></div>
+  <h2>測試策略 · 63 tests · TDD</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div>
+      <div class="tw" style="margin-bottom:10px;">
+        <table>
+          <thead><tr><th>測試檔案</th><th>Tests</th><th>覆蓋範圍</th></tr></thead>
+          <tbody>
+            <tr><td><code>test_health_agent.py</code></td><td>12</td><td style="color:var(--muted);">build + invoke + stats</td></tr>
+            <tr><td><code>test_analysis_agent.py</code></td><td>8</td><td style="color:var(--muted);">build + invoke + return format</td></tr>
+            <tr><td><code>test_alert_agent.py</code></td><td>8</td><td style="color:var(--muted);">build + invoke + schedule</td></tr>
+            <tr><td><code>test_tools.py</code></td><td>12</td><td style="color:var(--muted);">6 個工具 + 邊界條件</td></tr>
+            <tr><td><code>test_mock_sensors.py</code></td><td>8</td><td style="color:var(--muted);">IoT mock + override</td></tr>
+            <tr><td><code>test_prompts.py</code></td><td>6</td><td style="color:var(--muted);">3 個 prompt 關鍵字驗證</td></tr>
+            <tr><td><code>test_scheduler_tools.py</code></td><td>11</td><td style="color:var(--muted);">佇列 + Timer + 全域設定</td></tr>
+            <tr><td><code>test_charts.py</code></td><td>5</td><td style="color:var(--muted);">build_trend_chart 驗證</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="card"><h3>Mock 策略</h3><p>在<strong>來源模組</strong> patch（非 health_agent 命名空間），子代理 lazy import 才能被正確 mock</p></div>
+      <div class="card"><h3>conftest.py</h3><p><code>@pytest.fixture(autouse=True)</code> 每個測試前後自動 <code>_store.clear()</code>，防止 Session 記憶跨測試污染</p></div>
+      <div class="card"><h3>回傳格式約定</h3><p>子代理 mock 必須回傳 <code>{"messages": [AIMessage(content="...")]}</code>（langgraph 格式），CareAgent 回傳 <code>{"output": "..."}</code></p></div>
+      <div class="co s" style="margin:0;font-size:11px;"><strong>TDD 流程：</strong>先寫測試確認 fail → 實作 → 確認 pass → commit</div>
+    </div>
+  </div>
+</div>
+
+<!-- 21 DEMO SCRIPT -->
+<div class="slide">
+  <div class="sm"><span class="sn">21</span><span class="st">Live Demo · 5 Steps</span></div>
+  <h2>Demo 腳本（3 分鐘）</h2>
+  <div class="tw" style="margin-top:4px;flex:1;">
+    <table>
+      <thead><tr><th style="width:20px;">#</th><th>操作</th><th>展示重點</th><th style="width:110px;">技術</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:600;color:var(--muted);">1</td>
+          <td style="font-weight:500;">點擊「🌅 模擬早晨問候」</td>
+          <td style="color:var(--muted);">Proactive Trigger + Session 記憶（姓名、病史、用藥）</td>
+          <td style="color:var(--muted);"><code>get_sleep_report</code> <code>get_medication_schedule</code></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--muted);">2</td>
+          <td style="font-weight:500;">輸入「我今天頭有點暈」</td>
+          <td style="color:var(--muted);">Tool Calling → <code>get_vitals()</code> 讀取即時血壓 / 心率 / 血氧，Vibe Design 展示</td>
+          <td style="color:var(--muted);"><code>get_vitals</code></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--muted);">3</td>
+          <td style="font-weight:500;">場景切「心跳過快」→ 等 5s</td>
+          <td style="color:var(--muted);">APScheduler 閾值觸發 → AlertAgent → send_emergency_alert + schedule_followup，Sidebar 效能監控</td>
+          <td style="color:var(--muted);">cron-as-tool</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--muted);">4</td>
+          <td style="font-weight:500;">輸入「這週健康狀況怎麼樣？」</td>
+          <td style="color:var(--muted);">CareAgent 委派 → AnalysisAgent → get_health_trend(7)，multi-agent 協調</td>
+          <td style="color:var(--muted);"><code>get_health_trend</code></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600;color:var(--muted);">5</td>
+          <td style="font-weight:500;">切「📈 趨勢儀表板」Tab</td>
+          <td style="color:var(--muted);">30 天 Plotly 折線圖 · 警報閾值虛線 · vs 昨日 delta 4 欄指標</td>
+          <td style="color:var(--muted);"><code>charts.py</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="co a" style="font-size:11px;margin-top:10px;">Sidebar 貫穿全程：即時切換 3 個 Agent 的 LLM · 效能監控（延遲/Token/費用）· 追蹤間隔設定</div>
+</div>
+
+<!-- 22 PERFORMANCE -->
+<div class="slide">
+  <div class="sm"><span class="sn">22</span><span class="st">Metrics &amp; Performance</span></div>
+  <h2>效能監控 &amp; 關鍵指標</h2>
+  <div class="g g2" style="flex:1;gap:20px;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="tw">
+        <table>
+          <thead><tr><th>類型</th><th>指標</th><th>目標</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--success);font-weight:600;">Primary</td><td>10 秒內觸發率</td><td>&gt; 95%</td></tr>
+            <tr><td>Secondary</td><td>CareAgent P90 延遲</td><td>&lt; 3s</td></tr>
+            <tr><td>Secondary</td><td>Token 成本 / Session</td><td>&lt; $0.05</td></tr>
+            <tr><td style="color:var(--danger);">Guardrail</td><td>AlertAgent 假警報率</td><td>&lt; 5%</td></tr>
+            <tr><td style="color:var(--danger);">Guardrail</td><td>用戶退出率（警報疲勞信號）</td><td>監控中</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="co s" style="margin:0;font-size:11px;">Sidebar 即時顯示：延遲 · 輸入/輸出 Token · 費用 · 模型名稱 · 累計統計</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="card"><h3>為什麼 Token 追蹤從第一天起</h3><p>PM 責任：讓工程成本可見，不是事後帳單驚喜。每次對話即時回傳，幫助即時決策是否需要降級模型。</p></div>
+      <div class="card"><h3>成本計算邏輯</h3><p><code>_MODEL_PRICES</code> 記錄每 1M token 價格，<code>_compute_cost(model, in, out)</code> 即時計算。OpenAI 與 Gemini 格式統一處理。</p></div>
+      <div class="card"><h3>模型選擇影響成本</h3><p>gpt-4o-mini vs gpt-4o 差 ~10倍；Gemini 2.5 Flash 比 Pro 差 ~5倍。Sidebar 可切換模型，費用差異即時可見。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- 23 POC → AWS -->
+<div class="slide">
+  <div class="sm"><span class="sn">23</span><span class="st">PoC → Production</span></div>
+  <h2>PoC → AWS 生產架構</h2>
+  <div class="tw" style="flex:1;margin-top:6px;">
+    <table>
+      <thead><tr><th>PoC（現況）</th><th>AWS 生產對應</th><th>說明</th></tr></thead>
+      <tbody>
+        <tr><td><code>mock_sensors.py</code></td><td>AWS IoT Core（MQTT/TLS）</td><td style="color:var(--muted);">穿戴裝置 BLE → 手機 → MQTT 推送到 IoT Core</td></tr>
+        <tr><td>APScheduler 閾值判斷</td><td>Lambda anomaly-detector</td><td style="color:var(--muted);">每筆數據入 Kinesis 後 Lambda 即時判斷</td></tr>
+        <tr><td><code>health_history.json</code></td><td>DynamoDB health_events</td><td style="color:var(--muted);">TTL 90 天，GSI 支援時間範圍查詢</td></tr>
+        <tr><td><code>streamlit run app.py</code></td><td>ECS Fargate（LangChain）</td><td style="color:var(--muted);">容器化，ALB 前端，Auto Scaling</td></tr>
+        <tr><td><code>send_emergency_alert()</code><br><span style="font-size:9px;color:var(--danger);">⚠ 目前為 print()</span></td><td>AWS SNS → SMS / LINE Notify</td><td style="color:var(--muted);">Topic 分層：家屬 / 診所，優先級分離</td></tr>
+        <tr><td><code>threading.Timer</code></td><td>EventBridge Scheduler</td><td style="color:var(--muted);">持久化排程，服務重啟不丟失追蹤任務</td></tr>
+        <tr><td><code>health_profile.json</code></td><td>DynamoDB user_profiles</td><td style="color:var(--muted);">多用戶支援，個人化閾值設定</td></tr>
+        <tr><td>InMemoryChatMessageHistory</td><td>ElastiCache Redis</td><td style="color:var(--muted);">Session 記憶持久化，多實例共享</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 24 DESIGN PRINCIPLES -->
+<div class="slide">
+  <div class="sm"><span class="sn">24</span><span class="st a">Design Principles</span></div>
+  <h2>設計原則總覽</h2>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;">
+    <div class="pr-item"><span class="pr-n">01</span><div><div class="pr-t">Proactive over Reactive</div><div class="pr-d">IoT 異常偵測主動觸發，把「等待求救」的責任從長者身上移走</div></div></div>
+    <div class="pr-item"><span class="pr-n">02</span><div><div class="pr-t">Vibe First（語氣先行）</div><div class="pr-d">每則訊息只說一件事，用名字、鼓勵語氣，不作醫療診斷——語氣設計寫進 system prompt，不是事後微調</div></div></div>
+    <div class="pr-item"><span class="pr-n">03</span><div><div class="pr-t">最小權限工具分配</div><div class="pr-d">send_emergency_alert 只給 AlertAgent；get_health_trend 只給 AnalysisAgent。降低誤觸風險，職責清晰</div></div></div>
+    <div class="pr-item"><span class="pr-n">04</span><div><div class="pr-t">Cron-as-Tool（Agent 掌控時間軸）</div><div class="pr-d">AlertAgent 呼叫 schedule_followup 自排程追蹤，Agent 的行動不止於當下對話</div></div></div>
+    <div class="pr-item"><span class="pr-n">05</span><div><div class="pr-t">成本可見性從第一天起</div><div class="pr-d">Token 追蹤與效能監控是 PM 對工程成本的基本責任，不是優化期才做的事</div></div></div>
+    <div class="pr-item"><span class="pr-n">06</span><div><div class="pr-t">不用 Deprecated API，技術選型考慮維護成本</div><div class="pr-d">RunnableWithMessageHistory 已廢棄，自建 _AgentWithMemory；lazy import 解循環依賴</div></div></div>
+  </div>
+</div>
+
+<!-- 25 NEXT STEPS -->
+<div class="slide">
+  <div class="sm"><span class="sn">25</span><span class="st s">Takeaways</span></div>
+  <h2>Next Steps &amp; PM Takeaways</h2>
+  <div class="g g2" style="flex:1;gap:22px;align-items:start;">
+    <div>
+      <h3 style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">接下來要做</h3>
+      <ul class="bl" style="gap:10px;">
+        <li><strong>真實通知（P0）</strong>：Twilio SMS / AWS SNS，目前 <code>send_emergency_alert()</code> 僅 print()</li>
+        <li><strong>Claude 模型加入</strong>：llm_factory 新增 claude-sonnet-4-6，llm_factory 統一介面已支援</li>
+        <li><strong>語音介面</strong>：Streamlit 語音輸入，降低長者打字門檻</li>
+        <li><strong>用藥追蹤記憶</strong>：確認服藥後記入 history，避免當天重複提醒</li>
+        <li><strong>多用戶支援</strong>：health_profile 支援多份，家屬可管理多位長者</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">PM 決策紀錄</h3>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div class="card" style="padding:10px 13px;"><div style="font-size:11px;font-weight:600;">Reactive → Proactive</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">主動觸發而非等求助，把等待責任從長者移走</div></div>
+        <div class="card" style="padding:10px 13px;"><div style="font-size:11px;font-weight:600;">Multi-Agent vs 單一 Agent</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">職責分離降低 hallucination 風險，各自用最合適的模型與工具</div></div>
+        <div class="card" style="padding:10px 13px;"><div style="font-size:11px;font-weight:600;">cron-as-tool 而非外部 Scheduler</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">追蹤行為是 Agent 決策的一部分，不是系統配置</div></div>
+        <div class="card" style="padding:10px 13px;"><div style="font-size:11px;font-weight:600;">成本可見性從第一天起</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">Token 追蹤不是優化期才做，是 PM 對工程成本的基本責任</div></div>
+        <div class="card" style="padding:10px 13px;"><div style="font-size:11px;font-weight:600;">Docstring = Prompt Engineering</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">@tool docstring 是給 LLM 讀的 instruction，不是給人類讀的說明</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+<div id="nav">
+  <button class="nb" id="bp" onclick="go(-1)">←</button>
+  <div id="dots"></div>
+  <span class="pl" id="pl">1 / 25</span>
+  <button class="nb" id="bn" onclick="go(1)">→</button>
+</div>
+</div>
 <script>
-  const slides = document.querySelectorAll('.slide');
-  const total = slides.length;
-  let cur = 0;
-
-  const dotsEl = document.getElementById('dots');
-  const progressEl = document.getElementById('progress');
-  const btnPrev = document.getElementById('btn-prev');
-  const btnNext = document.getElementById('btn-next');
-
-  // build dots
-  for (let i = 0; i < total; i++) {
-    const d = document.createElement('div');
-    d.className = 'dot' + (i === 0 ? ' active' : '');
-    d.onclick = () => goTo(i);
-    dotsEl.appendChild(d);
-  }
-
-  function goTo(n) {
-    slides[cur].classList.remove('active');
-    dotsEl.children[cur].classList.remove('active');
-    cur = Math.max(0, Math.min(total - 1, n));
-    slides[cur].classList.add('active');
-    dotsEl.children[cur].classList.add('active');
-    progressEl.textContent = (cur + 1) + ' / ' + total;
-    btnPrev.disabled = cur === 0;
-    btnNext.disabled = cur === total - 1;
-  }
-
-  function go(dir) { goTo(cur + dir); }
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(-1);
-  });
-
-  goTo(0);
+const slides=document.querySelectorAll('.slide'),total=slides.length;
+let cur=0;
+const dotsEl=document.getElementById('dots'),pl=document.getElementById('pl'),bp=document.getElementById('bp'),bn=document.getElementById('bn');
+for(let i=0;i<total;i++){const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>goTo(i);dotsEl.appendChild(d);}
+function goTo(n){slides[cur].classList.remove('active');dotsEl.children[cur].classList.remove('active');cur=Math.max(0,Math.min(total-1,n));slides[cur].classList.add('active');dotsEl.children[cur].classList.add('active');pl.textContent=(cur+1)+' / '+total;bp.disabled=cur===0;bn.disabled=cur===total-1;}
+function go(d){goTo(cur+d);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1);});
+goTo(0);
 </script>
 </body>
 </html>
