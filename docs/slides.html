@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HomeWellness Companion — Technical PM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F9F9F7;
+    --white: #FFFFFF;
+    --text: #1A1A1A;
+    --muted: #78746E;
+    --border: #E5E3DF;
+    --accent: #1A56DB;
+    --accent-light: #EEF2FF;
+    --danger: #DC2626;
+    --danger-light: #FEF2F2;
+    --warning: #D97706;
+    --warning-light: #FFFBEB;
+    --success: #059669;
+    --success-light: #ECFDF5;
+    --code-bg: #F4F3F1;
+    --font-serif: 'Spectral', Georgia, serif;
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --slide-w: 960px;
+    --slide-h: 620px;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    font-family: var(--font-sans);
+    color: var(--text);
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ─── STAGE ─────────────────────────────── */
+  #stage {
+    width: 100vw; height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 20px;
+  }
+
+  /* ─── SLIDE FRAME ────────────────────────── */
+  #deck {
+    width: var(--slide-w);
+    height: var(--slide-h);
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 52px 64px 48px;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .35s ease;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ─── SLIDE HEADER (number + tag) ────────── */
+  .slide-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .slide-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+  .slide-tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+  }
+  .slide-tag.accent { color: var(--accent); border-color: #BFCFFF; background: var(--accent-light); }
+  .slide-tag.danger { color: var(--danger); border-color: #FECACA; background: var(--danger-light); }
+  .slide-tag.warning { color: var(--warning); border-color: #FDE68A; background: var(--warning-light); }
+  .slide-tag.success { color: var(--success); border-color: #A7F3D0; background: var(--success-light); }
+
+  /* ─── TYPOGRAPHY ─────────────────────────── */
+  h1, h2, h3 { font-family: var(--font-serif); font-weight: 600; line-height: 1.2; color: var(--text); }
+  h1 { font-size: 42px; }
+  h2 { font-size: 28px; margin-bottom: 24px; }
+  h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  p { font-size: 14px; line-height: 1.6; color: var(--muted); }
+
+  .huge { font-size: 52px; line-height: 1.05; letter-spacing: -.02em; }
+  .lead { font-size: 18px; color: var(--muted); font-weight: 300; line-height: 1.5; }
+  .caption { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  code, .mono { font-family: var(--font-mono); font-size: 12px; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; color: var(--text); }
+
+  /* ─── DIVIDER ────────────────────────────── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* ─── CALLOUT ────────────────────────────── */
+  .callout {
+    padding: 14px 18px;
+    border-radius: 8px;
+    border-left: 3px solid;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 12px 0;
+  }
+  .callout.danger  { background: var(--danger-light);  border-color: var(--danger);  color: #7F1D1D; }
+  .callout.warning { background: var(--warning-light); border-color: var(--warning); color: #78350F; }
+  .callout.accent  { background: var(--accent-light);  border-color: var(--accent);  color: #1E3A8A; }
+  .callout.success { background: var(--success-light); border-color: var(--success); color: #064E3B; }
+
+  /* ─── GRID / COLUMNS ─────────────────────── */
+  .cols { display: grid; gap: 20px; }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .cols-12 { grid-template-columns: 1fr 2fr; }
+  .cols-21 { grid-template-columns: 2fr 1fr; }
+
+  /* ─── CARD ───────────────────────────────── */
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .card h3 { margin-bottom: 6px; font-size: 14px; }
+  .card p  { font-size: 13px; }
+
+  /* ─── TABLE ──────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { border-bottom: 2px solid var(--border); }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  th { text-align: left; padding: 8px 12px; font-weight: 500; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  td { padding: 10px 12px; vertical-align: top; line-height: 1.4; }
+  td:first-child { font-weight: 500; white-space: nowrap; }
+  .table-wrap { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+
+  /* ─── STAT ───────────────────────────────── */
+  .stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat-number { font-family: var(--font-serif); font-size: 48px; font-weight: 600; line-height: 1; color: var(--text); }
+  .stat-label  { font-size: 12px; color: var(--muted); }
+
+  /* ─── TAG ROW ────────────────────────────── */
+  .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .tag {
+    font-size: 12px; font-weight: 500;
+    padding: 4px 12px; border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .tag.blue  { background: var(--accent-light); color: var(--accent); border-color: #BFCFFF; }
+  .tag.green { background: var(--success-light); color: var(--success); border-color: #A7F3D0; }
+  .tag.amber { background: var(--warning-light); color: var(--warning); border-color: #FDE68A; }
+
+  /* ─── FLOW ───────────────────────────────── */
+  .flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+  .flow-step {
+    padding: 8px 16px; border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 13px; font-weight: 500;
+    background: var(--white);
+  }
+  .flow-arrow { color: var(--muted); font-size: 16px; }
+  .flow-step.blue  { background: var(--accent-light); border-color: #BFCFFF; color: var(--accent); }
+  .flow-step.red   { background: var(--danger-light); border-color: #FECACA; color: var(--danger); }
+  .flow-step.amber { background: var(--warning-light); border-color: #FDE68A; color: var(--warning); }
+  .flow-step.green { background: var(--success-light); border-color: #A7F3D0; color: var(--success); }
+
+  /* ─── BULLET LIST ────────────────────────── */
+  .bullet-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .bullet-list li { font-size: 14px; color: var(--text); padding-left: 18px; position: relative; line-height: 1.5; }
+  .bullet-list li::before { content: '—'; position: absolute; left: 0; color: var(--muted); }
+  .bullet-list li strong { font-weight: 600; }
+
+  /* ─── AGENT CARD ─────────────────────────── */
+  .agent-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .agent-name { font-weight: 600; font-size: 14px; }
+  .agent-model { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .agent-role { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .agent-tools { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .agent-tool { font-family: var(--font-mono); font-size: 10px; padding: 2px 8px; border-radius: 4px; background: var(--code-bg); border: 1px solid var(--border); color: var(--muted); }
+
+  /* ─── SLIDE-SPECIFIC ─────────────────────── */
+  .cover-eyebrow { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .cover-bottom { margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 1px solid var(--border); }
+  .cover-bottom .date { font-size: 12px; color: var(--muted); }
+
+  .metric-row { display: flex; gap: 24px; }
+  .metric { display: flex; flex-direction: column; gap: 2px; }
+  .metric-val { font-family: var(--font-serif); font-size: 32px; font-weight: 600; line-height: 1; }
+  .metric-lbl { font-size: 12px; color: var(--muted); }
+
+  .arch-flow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    line-height: 2;
+    color: var(--text);
+    flex: 1;
+  }
+  .arch-flow .hl-blue  { color: var(--accent); font-weight: 500; }
+  .arch-flow .hl-red   { color: var(--danger); font-weight: 500; }
+  .arch-flow .hl-amber { color: var(--warning); font-weight: 500; }
+  .arch-flow .hl-green { color: var(--success); font-weight: 500; }
+
+  .step-row { display: grid; grid-template-columns: 28px 1fr 1.4fr; gap: 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .step-row:last-child { border-bottom: none; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--muted); flex-shrink: 0; }
+  .step-action { font-size: 13px; font-weight: 500; }
+  .step-desc { font-size: 12px; color: var(--muted); }
+
+  /* ─── NAVIGATION ─────────────────────────── */
+  #nav {
+    display: flex; align-items: center; gap: 20px;
+    width: var(--slide-w);
+  }
+  .nav-btn {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--text);
+    transition: all .15s;
+    flex-shrink: 0;
+  }
+  .nav-btn:hover { background: var(--bg); border-color: #C8C4BF; }
+  .nav-btn:disabled { opacity: .3; cursor: default; }
+
+  #dots {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .dot.active { background: var(--text); width: 18px; border-radius: 3px; }
+
+  .progress-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+    min-width: 36px;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="deck">
+
+    <!-- ══ SLIDE 1: COVER ══════════════════════════════════════════ -->
+    <div class="slide active">
+      <div class="cover-eyebrow">Technical PM Interview Assignment · AI & IoT</div>
+      <h1 class="huge">HomeWellness<br>Companion</h1>
+      <p class="lead" style="margin-top:16px;">主動感知、溫暖開口的 AI 健康伴侶<br>為獨居長者設計</p>
+      <div class="tags" style="margin-top:20px;">
+        <span class="tag blue">IoT 感測器</span>
+        <span class="tag blue">Multi-Agent</span>
+        <span class="tag blue">Proactive AI</span>
+        <span class="tag">LangChain</span>
+        <span class="tag">Streamlit</span>
+        <span class="tag">APScheduler</span>
+      </div>
+      <div class="cover-bottom">
+        <div>
+          <div style="font-size:13px;font-weight:500;">CareAgent × AnalysisAgent × AlertAgent</div>
+          <div class="date" style="margin-top:3px;">gpt-4o-mini · Gemini 2.5 Flash · cron-as-tool</div>
+        </div>
+        <div class="date">2026</div>
+      </div>
+    </div>
+
+    <!-- ══ SLIDE 2: PROBLEM ════════════════════════════════════════ -->
+    <div class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">02</span>
+        <span class="slide-tag danger">Problem</span>
+      </div>
+      <h2>獨居長者的健康守護缺口</h2>
+      <div class="cols cols-12" style="flex:1;align-items:start;">
+        <div>
+          <div class="stat">
+            <span class="stat-number">54萬</span>
+            <span class="stat-label">台灣 65 歲以上獨居長者</span>
+          </div>
+          <div style="margin-top:20px;" class="stat">
+            <span class="stat-number" style="color:var(--danger);">2–4h</span>
+            <span class="stat-label">從健康異常到被發現</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="callout danger" style="margin:0;"><strong>核心問題：</strong> 現有方案全是「被動等求助」——長者要自己求助，但危機時往往沒有能力開口</div>
+          <div class="card" style="font-size:13px;">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div>🚨 <strong>緊急按鈕</strong> — 昏迷時無法按下</div>
+              <div>💬 <strong>家屬 LINE</strong> — 長者不主動說「我不舒服」</div>
+              <div>📞 <strong>定時電話</strong> — 危機在兩通之間悄悄發生</div>
+              <div>📱 <strong>健康 App</strong> — 長者操作困難，主動性低</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SLIDE 3: SOLUTION ═══════════════════════════════════════ -->
+    <div class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">03</span>
+        <span class="slide-tag accent">Solution</span>
+      </div>
+      <h2>讓 AI 主動開口</h2>
+      <div class="callout accent" style="font-size:15px;font-weight:500;">
+        APScheduler 每 5 秒讀取生理數據，異常偵測到 AI 開口 &lt; <strong>10 秒</strong>
+      </div>
+      <div style="margin:20px 0;font-size:22px;font-family:var(--font-serif);color:var(--muted);text-align:center;letter-spacing:.05em;">
+        Reactive &nbsp;→&nbsp; <span style="color:var(--text);font-weight:600;">Proactive</span>
+      </div>
+      <div class="flow" style="justify-content:center;">
+        <div class="flow-step">IoT 感測器<br><span style="font-size:11px;opacity:.6;">每 5 秒</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step amber">閾值偵測<br><span style="font-size:11px;opacity:.6;">心率 / 血氧 / 血壓</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step blue">CareAgent<br><span style="font-size:11px;opacity:.6;">主動開口</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step red">AlertAgent<br><span style="font-size:11px;opacity:.6;">必要時通報</span></div>
+      </div>
+      <div class="callout success" style="margin-top:16px;font-size:13px;">
+        不等長者求救 — AI 先問：<em>「阿嬤，我看到你心跳快了一點，你現在坐著嗎？有哪裡不舒服嗎？」</em>
+      </div>
+    </div>
+
+    <!-- ══ SLIDE 4: ARCHITECTURE ═══════════════════════════════════ -->
+    <div class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">04</span>
+        <span class="slide-tag">Architecture</span>
+      </div>
+      <h2>系統架構</h2>
+      <div class="arch-flow">
+<span class="hl-blue">IoT Sensor（mock_sensors.py）</span>
+  └─ APScheduler 每 5 秒輪詢
+       ├─ 正常 → 繼續輪詢
+       └─ <span class="hl-amber">異常 → pending_proactive → st.rerun()</span>
+                    ↓
+          <span class="hl-blue">CareAgent（gpt-4o-mini）— 主控 Orchestrator</span>
+              ├─ 工具：get_vitals / get_sleep_report / get_medication_schedule
+              ├─ 趨勢問題 → <span class="hl-green">AnalysisAgent（Gemini 2.5 Flash）→ get_health_trend(N)</span>
+              └─ 數值異常 → <span class="hl-red">AlertAgent（gpt-4o-mini）→ send_emergency_alert(reason)</span>
+                                  └─ <span class="hl-amber">schedule_followup(reason) → Timer → N 分後重入</span>
+      </div>
+      <p style="margin-top:12px;">警報閾值：心率 &gt;120 或 &lt;50 bpm ／ 血氧 &lt;90% ／ 收縮壓 &gt;140 mmHg</p>
+    </div>
+
+    <!-- ══ SLIDE 5: MULTI-AGENT DESIGN ════════════════════════════ -->
+    <div class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">05</span>
+        <span class="slide-tag accent">Multi-Agent Design</span>
+      </div>
+      <h2>三個 Agent 的分工</h2>
+      <div style="display:flex;flex-direction:column;gap:12px;flex:1;">
+        <div class="agent-card" style="border-left:3px solid var(--accent);">
+          <div class="agent-name">🤖 CareAgent — 主控 Orchestrator</div>
+          <div class="agent-model">gpt-4o-mini · Session 記憶（_AgentWithMemory）</div>
+          <div class="agent-role">主對話、委派決策、Session 記憶；每則訊息只說一件事，用名字不用「用戶」</div>
+          <div class="agent-tools">
+            <span class="agent-tool">get_vitals</span>
+            <span class="agent-tool">get_sleep_report</span>
+            <span class="agent-tool">get_medication_schedule</span>
+          </div>
+        </div>
+        <div class="agent-card" style="border-left:3px solid var(--success);">
+          <div class="agent-name">🧪 AnalysisAgent — 深度趨勢分析</div>
+          <div class="agent-model">Gemini 2.5 Flash · Stateless（無記憶，每次獨立）</div>
+          <div class="agent-role">近 N 天生理趨勢分析、異常模式識別、結構化摘要回傳 CareAgent</div>
+          <div class="agent-tools"><span class="agent-tool">get_health_trend(days=N)</span></div>
+        </div>
+        <div class="agent-card" style="border-left:3px solid var(--danger);">
+          <div class="agent-name">🚨 AlertAgent — 緊急評估與通報</div>
+          <div class="agent-model">gpt-4o-mini · Stateless · cron-as-tool 自排程</div>
+          <div class="agent-role">確認最新數值、評估是否通報、執行通報、自排程 N 分後追蹤確認</div>
+          <div class="agent-tools">
+            <span class="agent-tool">get_vitals</span>
+            <span class="agent-tool">send_emergency_alert</span>
+            <span class="agent-tool">schedule_followup ✦</span>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:12px;">✦ <strong>最小權限原則</strong>：每個 Agent 只持有它需要的工具，send_emergency_alert 不授予 CareAgent</p>
+    </div>
+
+    <!-- ══ SLIDE 6: CRON-AS-TOOL ═══════════════════════════════════ -->
+    <div class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">06</span>
+        <span class="slide-tag warning">Cron-as-Tool</span>
+      </div>
+      <h2>Agent 自排程追蹤機制</h2>
+      <div class="cols cols-2" style="flex:1;align-items:start;gap:24px;">
+        <div>
+          <p style="margin-bottom:12px;font-size:14px;color:var(--text);">AlertAgent 通報後，不依賴外部 Cron——<strong>Agent 自己呼叫工具排程追蹤</strong></p>
+          <div class="arch-flow" style="font-size:11px;line-height:1.9;flex:none;padding:16px 18px;">
+<span class="hl-red">AlertAgent</span> 通報完成
+  └─ 呼叫 <span class="hl-amber">schedule_followup(reason)</span>
+       └─ threading.Timer(N×60s, _enqueue)
+            └─ <span class="hl-green">followup_queue.append(msg)</span>
+
+APScheduler 下一個 5s tick
+  └─ pop_followup() 取出訊息
+       └─ pending_proactive = msg
+            └─ <span class="hl-blue">CareAgent 主動追蹤確認</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="callout warning" style="margin:0;font-size:13px;">
+            <strong>靈感來源</strong><br>OpenClaw 的 cron-as-first-class-tool 概念：把「排程」當成 Agent 可呼叫的工具，而非外部基礎設施
+          </div>
+          <div class="card">
+            <h3>Sidebar 設定</h3>
+            <p>追蹤間隔 1–120 分鐘可即時調整，不需重啟 Agent；tool 呼叫時才讀全域設定值</p>
+          </div>
+          <div class="card">
+            <h3>追蹤訊息範例</h3>
+            <p style="font-family:var(--font-mono);font-size:11px;margin-top:4px;">「阿嬤，剛才心跳有點快，現在感覺怎麼樣？有好一點嗎？」</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SLIDE 7: DEMO SCRIPT ════════════════════════════════════ -->
+    <div class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">07</span>
+        <span class="slide-tag">Live Demo · 5 Steps</span>
+      </div>
+      <h2>Demo 腳本（3 分鐘）</h2>
+      <div class="table-wrap" style="margin-top:8px;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:28px;">#</th>
+              <th>操作</th>
+              <th>展示重點</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="step-num" style="margin:0;">1</div></td>
+              <td>點擊「🌅 模擬早晨問候」</td>
+              <td style="color:var(--muted);">Proactive Trigger + Session 記憶（姓名、病史、用藥）</td>
+            </tr>
+            <tr>
+              <td><div class="step-num" style="margin:0;">2</div></td>
+              <td>輸入「我今天頭有點暈」</td>
+              <td style="color:var(--muted);">Tool Calling → <code>get_vitals()</code> 讀取即時血壓 / 心率 / 血氧</td>
+            </tr>
+            <tr>
+              <td><div class="step-num" style="margin:0;">3</div></td>
+              <td>場景切「心跳過快」→ 等 5s</td>
+              <td style="color:var(--muted);">APScheduler 閾值觸發 → AlertAgent → <code>send_emergency_alert()</code></td>
+            </tr>
+            <tr>
+              <td><div class="step-num" style="margin:0;">4</div></td>
+              <td>輸入「這週健康狀況怎麼樣？」</td>
+              <td style="color:var(--muted);">CareAgent 委派 → AnalysisAgent → <code>get_health_trend(7)</code></td>
+            </tr>
+            <tr>
+              <td><div class="step-num" style="margin:0;">5</div></td>
+              <td>場景切「高血壓」→ 等 5s</td>
+              <td style="color:var(--muted);">收縮壓 &gt;140 mmHg → 主動關懷 + schedule_followup 排程追蹤</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout accent" style="margin-top:14px;font-size:13px;">
+        Sidebar：即時切換 3 個 Agent 的 LLM（OpenAI / Gemini）・效能監控（延遲 / Token / 費用）・追蹤間隔設定
+      </div>
+    </div>
+
+    <!-- ══ SLIDE 8: PERFORMANCE ════════════════════════════════════ -->
+    <div class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">08</span>
+        <span class="slide-tag">Metrics & Performance</span>
+      </div>
+      <h2>效能監控 & 關鍵指標</h2>
+      <div class="cols cols-2" style="flex:1;gap:24px;align-items:start;">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="callout success" style="margin:0;">
+            <strong>Primary：</strong>異常事件 10 秒內觸發率 &gt; 95%<br>
+            <span style="font-size:12px;">APScheduler 5s polling → 閾值判斷 → pending_proactive</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>指標</th><th>目標</th></tr></thead>
+              <tbody>
+                <tr><td>CareAgent P90 延遲</td><td>&lt; 3s</td></tr>
+                <tr><td>Token 成本 / Session</td><td>&lt; $0.05</td></tr>
+                <tr><td>AlertAgent 假警報率</td><td>&lt; 5%</td></tr>
+                <tr><td>30 天趨勢圖更新</td><td>即時</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <h3>為什麼要加 Token 追蹤？</h3>
+            <p>PM 責任：讓工程成本可見，不是事後帳單驚喜。每次對話即時回傳延遲 / 輸入輸出 Token / 費用估算 / 累計統計</p>
+          </div>
+          <div class="card">
+            <h3>模型選擇依據</h3>
+            <p>gpt-4o-mini 低延遲適合即時對話；Gemini 2.5 Flash 長上下文適合趨勢分析。費用差異 Sidebar 即時可見</p>
+          </div>
+          <div class="card">
+            <h3>30 天趨勢儀表板</h3>
+            <p>獨立 Tab：心率 / 血氧 / 收縮壓折線圖 + 警報閾值虛線 + vs 昨日 delta</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SLIDE 9: POC → AWS ══════════════════════════════════════ -->
+    <div class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">09</span>
+        <span class="slide-tag">PoC → Production</span>
+      </div>
+      <h2>PoC → AWS 生產架構</h2>
+      <div class="table-wrap" style="flex:1;margin-top:8px;">
+        <table>
+          <thead>
+            <tr>
+              <th>PoC（現況）</th>
+              <th>AWS 生產對應</th>
+              <th>說明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>mock_sensors.py</code></td>
+              <td>AWS IoT Core（MQTT/TLS）</td>
+              <td style="color:var(--muted);">穿戴裝置 BLE → 手機 → MQTT 推送</td>
+            </tr>
+            <tr>
+              <td>APScheduler 閾值判斷</td>
+              <td>Lambda anomaly-detector</td>
+              <td style="color:var(--muted);">每筆數據入 Kinesis 後觸發 Lambda</td>
+            </tr>
+            <tr>
+              <td><code>health_history.json</code></td>
+              <td>DynamoDB health_events</td>
+              <td style="color:var(--muted);">TTL 90 天，GSI 支援時間範圍查詢</td>
+            </tr>
+            <tr>
+              <td><code>streamlit run app.py</code></td>
+              <td>ECS Fargate（LangChain）</td>
+              <td style="color:var(--muted);">容器化，ALB 前端，Auto Scaling</td>
+            </tr>
+            <tr>
+              <td><code>send_emergency_alert()</code><br><span style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">目前為 print()</span></td>
+              <td>AWS SNS → SMS / LINE Notify</td>
+              <td style="color:var(--muted);">Topic 分層：家屬通知 / 診所通知</td>
+            </tr>
+            <tr>
+              <td><code>threading.Timer</code></td>
+              <td>EventBridge Scheduler</td>
+              <td style="color:var(--muted);">持久化排程，服務重啟不丟失</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ SLIDE 10: NEXT STEPS ════════════════════════════════════ -->
+    <div class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">10</span>
+        <span class="slide-tag success">Takeaways</span>
+      </div>
+      <h2>Next Steps & PM Takeaways</h2>
+      <div class="cols cols-2" style="flex:1;gap:24px;align-items:start;">
+        <div>
+          <h3 style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">接下來要做</h3>
+          <ul class="bullet-list">
+            <li><strong>真實通知</strong>：Twilio SMS / AWS SNS，目前 <code>send_emergency_alert()</code> 僅 print()</li>
+            <li><strong>Claude 模型</strong>：llm_factory 加入 claude-sonnet-4-6 選項</li>
+            <li><strong>語音介面</strong>：Streamlit 語音輸入，降低長者打字門檻</li>
+            <li><strong>用藥追蹤</strong>：長者確認服藥後記入 history，避免重複提醒</li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">PM 決策紀錄</h3>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="card" style="padding:12px 14px;">
+              <div style="font-size:13px;font-weight:600;">Reactive → Proactive</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px;">主動觸發而非等求助，把「等待」的責任從長者身上移走</div>
+            </div>
+            <div class="card" style="padding:12px 14px;">
+              <div style="font-size:13px;font-weight:600;">最小權限工具分配</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px;">send_emergency_alert 只給 AlertAgent，避免 CareAgent 誤觸警報</div>
+            </div>
+            <div class="card" style="padding:12px 14px;">
+              <div style="font-size:13px;font-weight:600;">成本可見性從第一天起</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px;">Token 追蹤不是最後才做，是 PM 對工程成本的基本責任</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /deck -->
+
+  <!-- Navigation -->
+  <div id="nav">
+    <button class="nav-btn" id="btn-prev" onclick="go(-1)">←</button>
+    <div id="dots"></div>
+    <span class="progress-label" id="progress">1 / 10</span>
+    <button class="nav-btn" id="btn-next" onclick="go(1)">→</button>
+  </div>
+</div><!-- /stage -->
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let cur = 0;
+
+  const dotsEl = document.getElementById('dots');
+  const progressEl = document.getElementById('progress');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+
+  // build dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    slides[cur].classList.remove('active');
+    dotsEl.children[cur].classList.remove('active');
+    cur = Math.max(0, Math.min(total - 1, n));
+    slides[cur].classList.add('active');
+    dotsEl.children[cur].classList.add('active');
+    progressEl.textContent = (cur + 1) + ' / ' + total;
+    btnPrev.disabled = cur === 0;
+    btnNext.disabled = cur === total - 1;
+  }
+
+  function go(dir) { goTo(cur + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(-1);
+  });
+
+  goTo(0);
+</script>
+</body>
+</html>
