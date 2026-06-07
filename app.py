@@ -278,7 +278,6 @@ with col_data:
         st.rerun()
 
     if st.button("🚨 模擬心率異常（125 bpm）", use_container_width=True):
-        st.session_state.vitals_scenario = "心跳過快"
         set_vitals_override({"heart_rate": 125, "spo2": 88})
         prompt = (
             "（系統觸發）偵測到心率 125 bpm，血氧 88%，"
