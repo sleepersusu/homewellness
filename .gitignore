@@ -16,3 +16,11 @@ _*.md
 .superpowers/
 openspec/
 .claude/settings.local.json
+.agents/
+.codex/
+
+# 作業題目（版權文件，非專案成品）
+docs/TPM\ Assignment\ (1).pdf
+
+# Word 暫存 lock file
+docs/~$*.docx

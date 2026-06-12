@@ -1,7 +1,8 @@
 # app.py
 import json
+import time
 import streamlit as st
-from datetime import time as dtime
+from datetime import time as dtime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from agent.health_agent import build_agent, invoke_agent
@@ -117,37 +118,50 @@ if "med_overrides" not in st.session_state:
 if "pending_proactive" not in st.session_state:
     st.session_state.pending_proactive = None
 
-# ── APScheduler Heartbeat ─────────────────────────────
-from apscheduler.schedulers.background import BackgroundScheduler
+# ── Cron-like Monitor（st.fragment run_every）────────────
+_ALERT_COOLDOWN_SECONDS = 60
 
-if "scheduler_started" not in st.session_state:
-    def _proactive_monitor():
-        from agent.scheduler_tools import pop_followup
-        followup = pop_followup()
-        if followup:
-            st.session_state["pending_proactive"] = followup
-            return
+@st.fragment(run_every=timedelta(seconds=5))
+def _continuous_monitor() -> None:
+    from agent.scheduler_tools import pop_followup
+    followup = pop_followup()
+    if followup:
+        st.session_state["pending_proactive"] = followup
+        st.rerun()
+        return
 
-        vitals = get_mock_vitals()
-        thresholds = json.loads(
-            Path("data/health_profile.json").read_text(encoding="utf-8")
-        )["alert_thresholds"]
-        bp = vitals["blood_pressure"]
-        if (
-            vitals["heart_rate"] > thresholds["heart_rate_high"]
-            or vitals["spo2"] < thresholds["spo2_low"]
-            or bp["systolic"] > thresholds["systolic_high"]
-        ):
-            st.session_state["pending_proactive"] = (
-                f"（系統觸發）偵測到異常數值：心率 {vitals['heart_rate']} bpm，"
-                f"血氧 {vitals['spo2']}%，"
-                f"血壓 {bp['systolic']}/{bp['diastolic']} mmHg，請立即關心陳阿嬤。"
-            )
+    vitals = get_mock_vitals()
+    th = _PROFILE["alert_thresholds"]
+    bp = vitals["blood_pressure"]
 
-    _scheduler = BackgroundScheduler()
-    _scheduler.add_job(_proactive_monitor, "interval", seconds=5)
-    _scheduler.start()
-    st.session_state.scheduler_started = True
+    abnormal_flags = {
+        "heart_rate_high": vitals["heart_rate"] > th["heart_rate_high"],
+        "heart_rate_low":  vitals["heart_rate"] < th["heart_rate_low"],
+        "spo2_low":        vitals["spo2"] < th["spo2_low"],
+        "systolic_high":   bp["systolic"] > th["systolic_high"],
+        "diastolic_high":  bp["diastolic"] > th["diastolic_high"],
+    }
+    active = {k for k, v in abnormal_flags.items() if v}
+
+    if not active:
+        return
+
+    # cooldown：相同異常組合 60 秒內不重複通報；異常類型變了立即觸發
+    last_alert = st.session_state.get("last_alert_time", 0.0)
+    last_flags = st.session_state.get("last_alert_flags", set())
+    if active == last_flags and time.time() - last_alert < _ALERT_COOLDOWN_SECONDS:
+        return
+
+    st.session_state["last_alert_time"] = time.time()
+    st.session_state["last_alert_flags"] = active
+    st.session_state["pending_proactive"] = (
+        f"（系統觸發）偵測到異常數值：心率 {vitals['heart_rate']} bpm，"
+        f"血氧 {vitals['spo2']}%，"
+        f"血壓 {bp['systolic']}/{bp['diastolic']} mmHg，請立即關心陳阿嬤。"
+    )
+    st.rerun()
+
+_continuous_monitor()
 
 # ── Session State: Stats ──────────────────────────────
 if "last_stats" not in st.session_state:
