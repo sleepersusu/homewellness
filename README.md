@@ -83,7 +83,7 @@ IoT 感測器（mock_sensors.py）
 | ECS Fargate（LangChain）| `streamlit run app.py` |
 | AWS SNS | `send_emergency_alert()`（目前 log 輸出）|
 
-（架構圖見下方 ASCII 示意）
+詳細架構說明見 `docs/PRD.md` §5。
 
 ---
 
@@ -107,9 +107,9 @@ homewellness/
 │   ├── health_profile.json   # 病患靜態資料（陳阿嬤）+ 警報閾值
 │   └── health_history.json   # 近 30 天生理歷史
 ├── docs/
+│   ├── PRD.md                   # 產品需求文件（User Journey / User Stories / 成功指標）
+│   ├── HomeWellness_Proactive_AI (1).pdf  # 簡報投影片
 │   └── superpowers/             # 設計規格與實作計畫
-├── plans/
-│   └── proactive-health-care.md # 垂直切片實作計畫
 ├── tests/                    # 63 個 pytest 測試
 ├── .env.example
 └── requirements.txt
