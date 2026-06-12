@@ -6,7 +6,7 @@
 
 ## 一句話說明
 
-APScheduler 每 5 秒輪詢 IoT 生理數據，偵測異常（心率、血氧、血壓）後在 **10 秒內**自動觸發 CareAgent 主動發起對話；長者也可以隨時直接輸入症狀，AI 即時讀取數值並給出回應。
+`st.fragment(run_every=5s)` 每 5 秒輪詢 IoT 生理數據，偵測異常（心率、血氧、血壓）後自動觸發 CareAgent 主動發起對話；長者也可以隨時直接輸入症狀，AI 即時讀取數值並給出回應。
 
 ---
 
@@ -34,7 +34,7 @@ streamlit run app.py
 |------|------|---------|
 | 1 | 點擊「🌅 模擬早晨問候」 | Proactive Trigger + session 記憶（姓名、病史、用藥）|
 | 2 | 輸入「我今天頭有點暈」 | Tool Calling → `get_vitals()` 讀取即時血壓 / 心率 / 血氧 |
-| 3 | 場景切「心跳過快」→ 等 5 秒 | APScheduler 閾值觸發 → AlertAgent → `send_emergency_alert()` |
+| 3 | 場景切「心跳過快」→ 等 5 秒 | st.fragment 閾值觸發 → AlertAgent → `send_emergency_alert()` |
 | 4 | 輸入「這週健康狀況怎麼樣？」 | CareAgent 委派 → AnalysisAgent → `get_health_trend(7)` |
 | 5 | 場景切「高血壓」→ 等 5 秒 | 收縮壓 > 140 mmHg 觸發主動關懷流程 |
 
@@ -60,7 +60,7 @@ streamlit run app.py
 
 ```
 IoT 感測器（mock_sensors.py）
-  └─ APScheduler 每 5 秒輪詢
+  └─ st.fragment 每 5 秒輪詢（主執行緒，無 threading 問題）
        ├─ 正常 → 繼續輪詢
        └─ 異常 → pending_proactive → st.rerun()
                     ↓
@@ -77,13 +77,13 @@ IoT 感測器（mock_sensors.py）
 | 生產環境 | PoC 對應 |
 |---------|---------|
 | AWS IoT Core（MQTT/TLS）| `mock_sensors.py` |
-| Lambda `anomaly-detector` | APScheduler 閾值判斷 |
+| Lambda `anomaly-detector` | st.fragment 閾值判斷 |
 | Lambda `data-ingester` | — |
 | DynamoDB `health_events` | `health_history.json` |
 | ECS Fargate（LangChain）| `streamlit run app.py` |
 | AWS SNS | `send_emergency_alert()`（目前 log 輸出）|
 
-架構圖：[docs/aws-architecture.drawio](docs/aws-architecture.drawio) · [User Journey](docs/user-journey.drawio) · [Agent Workflow](docs/agent-workflow.drawio)
+（架構圖見下方 ASCII 示意）
 
 ---
 
@@ -91,7 +91,7 @@ IoT 感測器（mock_sensors.py）
 
 ```
 homewellness/
-├── app.py                    # Streamlit UI + APScheduler 心跳
+├── app.py                    # Streamlit UI + st.fragment 心跳監測
 ├── charts.py                 # Plotly 30 天健康趨勢圖（build_trend_chart）
 ├── agent/
 │   ├── health_agent.py       # CareAgent（主控 orchestrator）
@@ -107,11 +107,7 @@ homewellness/
 │   ├── health_profile.json   # 病患靜態資料（陳阿嬤）+ 警報閾值
 │   └── health_history.json   # 近 30 天生理歷史
 ├── docs/
-│   ├── PRD.md                # 精簡版產品需求文件（作業對應）
-│   ├── PRD-detail.md         # 完整版 PRD（10 個 Phase）
-│   ├── aws-architecture.drawio  # AWS 系統架構圖
-│   ├── user-journey.drawio      # User Journey 流程圖
-│   └── agent-workflow.drawio    # AI 多代理工作流圖
+│   └── superpowers/             # 設計規格與實作計畫
 ├── plans/
 │   └── proactive-health-care.md # 垂直切片實作計畫
 ├── tests/                    # 63 個 pytest 測試
