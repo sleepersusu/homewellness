@@ -2,6 +2,8 @@
 
 > 主動感知、溫暖開口的 AI 健康伴侶——為獨居長者設計，整合 IoT 感測、Multi-Agent 協調與 Proactive Trigger。
 
+*[English README](README.en.md)*
+
 ---
 
 ## 一句話說明
