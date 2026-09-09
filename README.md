@@ -1,161 +1,161 @@
 # HomeWellness Companion
 
-> 主動感知、溫暖開口的 AI 健康伴侶——為獨居長者設計，整合 IoT 感測、Multi-Agent 協調與 Proactive Trigger。
+> A proactive AI health companion that senses first and speaks up warmly — built for seniors living alone, combining IoT sensing, multi-agent orchestration, and proactive triggers.
 
-*[English README](README.en.md)*
-
----
-
-## 一句話說明
-
-`st.fragment(run_every=5s)` 每 5 秒輪詢 IoT 生理數據，偵測異常（心率、血氧、血壓）後自動觸發 CareAgent 主動發起對話；長者也可以隨時直接輸入症狀，AI 即時讀取數值並給出回應。
+*[繁體中文版 README](README.zh-TW.md)*
 
 ---
 
-## 快速啟動
+## In One Sentence
+
+`st.fragment(run_every=5s)` polls IoT vitals every 5 seconds. When it detects an anomaly (heart rate, SpO2, blood pressure), it automatically triggers CareAgent to start the conversation. Seniors can also type a symptom at any time — the AI reads live readings and responds immediately.
+
+---
+
+## Quick Start
 
 ```bash
-# 1. 安裝依賴
+# 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. 設定 API Key
+# 2. Configure API keys
 cp .env.example .env
-# 在 .env 填入 OPENAI_API_KEY 和 GOOGLE_API_KEY
+# Fill in OPENAI_API_KEY and GOOGLE_API_KEY in .env
 
-# 3. 啟動
+# 3. Run
 streamlit run app.py
 ```
 
-開啟瀏覽器 `http://localhost:8501`
+Open `http://localhost:8501` in your browser.
 
 ---
 
-## Live Demo 腳本（3 分鐘）
+## Live Demo Script (3 minutes)
 
-| 步驟 | 操作 | 展示重點 |
-|------|------|---------|
-| 1 | 點擊「🌅 模擬早晨問候」 | Proactive Trigger + session 記憶（姓名、病史、用藥）|
-| 2 | 輸入「我今天頭有點暈」 | Tool Calling → `get_vitals()` 讀取即時血壓 / 心率 / 血氧 |
-| 3 | 場景切「心跳過快」→ 等 5 秒 | st.fragment 閾值觸發 → AlertAgent → `send_emergency_alert()` |
-| 4 | 輸入「這週健康狀況怎麼樣？」 | CareAgent 委派 → AnalysisAgent → `get_health_trend(7)` |
-| 5 | 場景切「高血壓」→ 等 5 秒 | 收縮壓 > 140 mmHg 觸發主動關懷流程 |
-
----
-
-## 功能特色
-
-| 功能 | 說明 |
-|------|------|
-| **主動觸發** | 心率 > 120 bpm、血氧 < 90%、收縮壓 > 140 mmHg → 10 秒內 CareAgent 主動開口 |
-| **Multi-Agent 協調** | CareAgent 主控，視情況委派 AnalysisAgent（趨勢）或 AlertAgent（緊急）|
-| **即時生理監測** | 心率 / 血氧 / 血壓 / 步數 / 體溫，支援 5 種場景模擬 |
-| **Session 記憶** | 對話中不重複詢問，`_AgentWithMemory` 保持上下文連貫 |
-| **語氣設計** | 貼心晚輩口吻，用名字（阿嬤），不作醫療診斷，每則訊息只說一件事 |
-| **模型可切換** | Sidebar 即時選擇每個 Agent 的 LLM（OpenAI / Gemini），不需重啟 |
-| **效能監控** | Sidebar 即時顯示每次回應延遲、Token 用量、費用估算與累計統計 |
-| **Agent 自排程追蹤** | AlertAgent 通報後自動呼叫 `schedule_followup`，N 分鐘後主動追蹤確認（cron-as-tool）|
-| **30 天趨勢儀表板** | 獨立 Tab：心率 / 血氧 / 收縮壓折線圖 + 警報閾值虛線 + vs 昨日 delta |
+| Step | Action | What it shows |
+|------|--------|---------------|
+| 1 | Click "🌅 Simulate Morning Greeting" | Proactive trigger + session memory (name, medical history, medication) |
+| 2 | Type "I feel a bit dizzy today" | Tool calling → `get_vitals()` reads live blood pressure / heart rate / SpO2 |
+| 3 | Switch scenario to "Tachycardia" → wait 5s | st.fragment threshold trigger → AlertAgent → `send_emergency_alert()` |
+| 4 | Type "How has my health been this week?" | CareAgent delegates → AnalysisAgent → `get_health_trend(7)` |
+| 5 | Switch scenario to "Hypertension" → wait 5s | Systolic > 140 mmHg triggers the proactive care flow |
 
 ---
 
-## 系統架構
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| **Proactive trigger** | Heart rate > 120 bpm, SpO2 < 90%, systolic > 140 mmHg → CareAgent speaks up within 10 seconds |
+| **Multi-agent orchestration** | CareAgent orchestrates and delegates to AnalysisAgent (trends) or AlertAgent (emergencies) as needed |
+| **Live vitals monitoring** | Heart rate / SpO2 / blood pressure / step count / body temperature, with 5 simulated scenarios |
+| **Session memory** | Never re-asks within a conversation; `_AgentWithMemory` keeps the context coherent |
+| **Tone design** | Speaks like a caring grandchild, uses her name (Grandma), never diagnoses, one idea per message |
+| **Switchable models** | Pick each agent's LLM (OpenAI / Gemini) live from the sidebar — no restart needed |
+| **Performance monitoring** | Sidebar shows per-response latency, token usage, cost estimate, and cumulative stats |
+| **Agent self-scheduling** | After an alert, AlertAgent calls `schedule_followup` to check back N minutes later (cron-as-tool) |
+| **30-day trend dashboard** | Dedicated tab: heart rate / SpO2 / systolic line charts + alert threshold guides + day-over-day delta |
+
+---
+
+## System Architecture
 
 ```
-IoT 感測器（mock_sensors.py）
-  └─ st.fragment 每 5 秒輪詢（主執行緒，無 threading 問題）
-       ├─ 正常 → 繼續輪詢
-       └─ 異常 → pending_proactive → st.rerun()
+IoT sensors (mock_sensors.py)
+  └─ st.fragment polls every 5s (main thread, no threading issues)
+       ├─ Normal   → keep polling
+       └─ Abnormal → pending_proactive → st.rerun()
                     ↓
-            CareAgent（gpt-4o-mini）— 主控 Orchestrator
-              ├─ 工具：get_vitals / get_sleep_report / get_medication_schedule
-              ├─ 趨勢問題 → AnalysisAgent（gemini-2.5-flash）→ get_health_trend(N)
-              └─ 數值異常 → AlertAgent（gpt-4o-mini）→ send_emergency_alert(reason)
+            CareAgent (gpt-4o-mini) — the orchestrator
+              ├─ Tools: get_vitals / get_sleep_report / get_medication_schedule
+              ├─ Trend questions → AnalysisAgent (gemini-2.5-flash) → get_health_trend(N)
+              └─ Abnormal values → AlertAgent (gpt-4o-mini) → send_emergency_alert(reason)
                                   └─ schedule_followup(reason) → threading.Timer
-                                       └─ N 分鐘後重入 pending_proactive（追蹤確認）
+                                       └─ re-enters pending_proactive N minutes later (follow-up check)
 ```
 
-**AWS 生產架構對應：**
+**Mapping to a production AWS architecture:**
 
-| 生產環境 | PoC 對應 |
-|---------|---------|
-| AWS IoT Core（MQTT/TLS）| `mock_sensors.py` |
-| Lambda `anomaly-detector` | st.fragment 閾值判斷 |
+| Production | PoC equivalent |
+|------------|----------------|
+| AWS IoT Core (MQTT/TLS) | `mock_sensors.py` |
+| Lambda `anomaly-detector` | st.fragment threshold check |
 | Lambda `data-ingester` | — |
 | DynamoDB `health_events` | `health_history.json` |
-| ECS Fargate（LangChain）| `streamlit run app.py` |
-| AWS SNS | `send_emergency_alert()`（目前 log 輸出）|
+| ECS Fargate (LangChain) | `streamlit run app.py` |
+| AWS SNS | `send_emergency_alert()` (currently logs output) |
 
-詳細架構說明見 `docs/PRD.md` §5。
+See `docs/PRD.md` §5 for the full architecture write-up (in Traditional Chinese).
 
 ---
 
-## 目錄結構
+## Project Structure
 
 ```
 homewellness/
-├── app.py                    # Streamlit UI + st.fragment 心跳監測
-├── charts.py                 # Plotly 30 天健康趨勢圖（build_trend_chart）
+├── app.py                    # Streamlit UI + st.fragment heartbeat monitoring
+├── charts.py                 # Plotly 30-day health trend charts (build_trend_chart)
 ├── agent/
-│   ├── health_agent.py       # CareAgent（主控 orchestrator）
-│   ├── analysis_agent.py     # AnalysisAgent（深度趨勢分析）
-│   ├── alert_agent.py        # AlertAgent（緊急評估與通報）
-│   ├── llm_factory.py        # LLM 工廠：OpenAI / Gemini 統一介面
-│   ├── tools.py              # 6 個 @tool 工具（最小權限原則）
-│   ├── prompts.py            # 3 個 build_*_prompt()，動態注入病患資料
+│   ├── health_agent.py       # CareAgent (main orchestrator)
+│   ├── analysis_agent.py     # AnalysisAgent (deep trend analysis)
+│   ├── alert_agent.py        # AlertAgent (emergency assessment and notification)
+│   ├── llm_factory.py        # LLM factory: unified OpenAI / Gemini interface
+│   ├── tools.py              # 6 @tool functions (least-privilege allocation)
+│   ├── prompts.py            # 3 build_*_prompt() functions, patient data injected dynamically
 │   ├── memory.py             # _AgentWithMemory + InMemoryChatMessageHistory
-│   └── scheduler_tools.py    # followup 佇列 + Timer 自排程（cron-as-tool）
+│   └── scheduler_tools.py    # Follow-up queue + Timer self-scheduling (cron-as-tool)
 ├── data/
-│   ├── mock_sensors.py       # Mock IoT（心率 / 血氧 / 血壓 / 步數 / 體溫）
-│   ├── health_profile.json   # 病患靜態資料（陳阿嬤）+ 警報閾值
-│   └── health_history.json   # 近 30 天生理歷史
+│   ├── mock_sensors.py       # Mock IoT (heart rate / SpO2 / blood pressure / steps / temperature)
+│   ├── health_profile.json   # Static patient data (Grandma Chen) + alert thresholds
+│   └── health_history.json   # Last 30 days of vitals history
 ├── docs/
-│   ├── PRD.md                   # 產品需求文件（User Journey / User Stories / 成功指標）
-│   ├── HomeWellness_Proactive_AI (1).pdf  # 簡報投影片
-│   └── superpowers/             # 設計規格與實作計畫
-├── tests/                    # 63 個 pytest 測試
+│   ├── PRD.md                   # Product requirements (user journey / user stories / success metrics)
+│   ├── HomeWellness_Proactive_AI (1).pdf  # Slide deck
+│   └── superpowers/             # Design specs and implementation plans
+├── tests/                    # 63 pytest tests
 ├── .env.example
 └── requirements.txt
 ```
 
 ---
 
-## 警報閾值
+## Alert Thresholds
 
-| 指標 | 警報條件 |
-|------|---------|
-| 心率 | < 50 bpm 或 > 120 bpm |
-| 血氧（SpO2）| < 90% |
-| 收縮壓 | > 140 mmHg |
+| Metric | Alert condition |
+|--------|-----------------|
+| Heart rate | < 50 bpm or > 120 bpm |
+| SpO2 | < 90% |
+| Systolic blood pressure | > 140 mmHg |
 
 ---
 
-## 執行測試
+## Running Tests
 
 ```bash
-# 全部測試（63 個）
+# All tests (63)
 pytest tests/ -v
 
-# 含覆蓋率報告
+# With coverage report
 pytest tests/ --cov=agent --cov=data --cov-report=term-missing
 ```
 
 ---
 
-## 環境變數
+## Environment Variables
 
 ```env
-OPENAI_API_KEY=sk-...      # CareAgent + AlertAgent（gpt-4o-mini）
-GOOGLE_API_KEY=...         # AnalysisAgent（gemini-2.5-flash）
+OPENAI_API_KEY=sk-...      # CareAgent + AlertAgent (gpt-4o-mini)
+GOOGLE_API_KEY=...         # AnalysisAgent (gemini-2.5-flash)
 ```
 
-模型在 Streamlit sidebar 即時切換，不需重啟。
+Models can be switched live from the Streamlit sidebar — no restart required.
 
 ---
 
-## 設計原則
+## Design Principles
 
-- **最小權限**：`send_emergency_alert` 只授予 AlertAgent；`get_health_trend` 只授予 AnalysisAgent
-- **語氣設計**：每則訊息只說一件事，用名字不用「用戶」，不作醫療診斷
-- **Lazy Import**：AnalysisAgent / AlertAgent 在 `build_agent()` 函式體內 import，防止循環 import
-- **不使用** `RunnableWithMessageHistory`（已 deprecated），改用自建 `_AgentWithMemory`
-- **Cron-as-tool**：`schedule_followup` 讓 AlertAgent 自排程後續追蹤，不依賴外部 cron，Agent 掌控自己的時間軸
+- **Least privilege**: `send_emergency_alert` is granted only to AlertAgent; `get_health_trend` only to AnalysisAgent
+- **Tone design**: one idea per message, use her name instead of "the user", never give a medical diagnosis
+- **Lazy import**: AnalysisAgent / AlertAgent are imported inside the body of `build_agent()` to prevent circular imports
+- **No** `RunnableWithMessageHistory` (deprecated) — replaced by the hand-rolled `_AgentWithMemory`
+- **Cron-as-tool**: `schedule_followup` lets AlertAgent schedule its own follow-up without an external cron — the agent owns its timeline
