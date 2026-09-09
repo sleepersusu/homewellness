@@ -119,6 +119,7 @@ homewellness/
 │   ├── HomeWellness_Proactive_AI (1).pdf  # Slide deck
 │   └── superpowers/          # Design spec and implementation plan (historical record)
 ├── CLAUDE.md / AGENTS.md     # Coding-agent instructions for this repo
+├── LICENSE                   # MIT
 ├── pytest.ini
 ├── .env.example
 └── requirements.txt
@@ -196,3 +197,11 @@ This is a **proof of concept**, built as a take-home assignment for a Technical 
 - **No clinical validation.** Thresholds come from common reference ranges, not from a validated clinical protocol. The agent is explicitly instructed never to diagnose.
 - **Single patient, single session.** Memory is in-process (`InMemoryChatMessageHistory`) and is lost on restart; there is no database, auth, or multi-tenancy.
 - **LLM behavior is not benchmarked.** Latency, token, and cost figures are measured live in the sidebar, but there is no offline eval set for response quality or false-alarm rate.
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE). The mock health data (`data/health_profile.json`,
+`data/health_history.json`) is fictional — "Grandma Chen" is not a real person and no
+patient data is included in this repository.

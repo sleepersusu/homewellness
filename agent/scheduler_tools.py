@@ -2,8 +2,8 @@
 """Followup queue for agent-driven self-scheduling.
 
 Agents call schedule_followup_internal() to enqueue a proactive message
-after a delay. APScheduler's _proactive_monitor() pops from this queue
-on each 5-second tick and routes it into the pending_proactive mechanism.
+after a delay. The st.fragment monitor in app.py (run_every=5s) pops from
+this queue on each tick and routes it into the pending_proactive mechanism.
 """
 from threading import Timer
 

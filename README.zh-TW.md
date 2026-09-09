@@ -119,6 +119,7 @@ homewellness/
 │   ├── HomeWellness_Proactive_AI (1).pdf  # 簡報投影片
 │   └── superpowers/          # 設計規格與實作計畫（歷史紀錄）
 ├── CLAUDE.md / AGENTS.md     # 本 repo 的 coding agent 指引
+├── LICENSE                   # MIT
 ├── pytest.ini
 ├── .env.example
 └── requirements.txt
@@ -194,3 +195,10 @@ GOOGLE_API_KEY=...         # AnalysisAgent（gemini-2.5-flash）
 - **未經臨床驗證**：閾值取自常見參考範圍，不是經驗證的臨床準則；Agent 的 prompt 明確禁止做醫療診斷。
 - **單一病患、單一 session**：記憶存在行程內（`InMemoryChatMessageHistory`），重啟即消失；沒有資料庫、認證或多租戶。
 - **LLM 行為未做基準測試**：延遲、token、費用在 sidebar 即時量測，但沒有離線 eval set 來評估回應品質或誤報率。
+
+---
+
+## 授權
+
+採用 [MIT License](LICENSE)。專案內的健康資料（`data/health_profile.json`、
+`data/health_history.json`）皆為虛構——「陳阿嬤」並非真實人物，本 repo 不含任何真實病患資料。
