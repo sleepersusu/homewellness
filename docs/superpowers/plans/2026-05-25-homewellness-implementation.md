@@ -29,7 +29,7 @@
 | `tests/test_health_agent.py` | Agent 建立與呼叫 smoke test |
 | `.env.example` | ANTHROPIC_API_KEY 環境變數範本 |
 | `requirements.txt` | 固定版本依賴 |
-| `README.md` | 一鍵啟動說明 + Demo 腳本 |
+| `README.md` | 一鍵啟動說明 + Demo 腳本（最終版為英文，中文版見 `README.zh-TW.md`）|
 
 ---
 
@@ -993,7 +993,13 @@ git commit -m "test: 四場景 Demo 驗證全部通過"
 ## Task 10: README + 最終文件
 
 **Files:**
-- Create: `README.md`
+- Create: `README.md`（最終交付為英文版）
+- Create: `README.zh-TW.md`（繁體中文版，與英文版互相連結）
+
+> **註（2026-09-09 更新）**：以下為當初的 README 草稿，保留作為歷史紀錄。
+> 實際交付的 README 已隨架構演進更新——改用 OpenAI + Gemini 雙供應商、
+> LangChain 1.x `create_agent`、自建 `_AgentWithMemory`、`st.fragment` 輪詢與 6 個工具。
+> 請以 repo 根目錄的 `README.md` / `README.zh-TW.md` 為準。
 
 - [ ] **Step 1: 寫 README.md**
 
@@ -1042,7 +1048,7 @@ IoT 手環 → AWS IoT Core → Lambda → DynamoDB → API Gateway → Agent Se
 - [ ] **Step 2: Commit**
 
 ```bash
-git add README.md
+git add README.md README.zh-TW.md
 git commit -m "docs: 新增 README 快速啟動說明與 Demo 腳本"
 ```
 

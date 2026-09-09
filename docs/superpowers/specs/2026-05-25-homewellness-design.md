@@ -274,7 +274,8 @@ homewellness/
 │   └── prd_snippet.md          # PRD 核心段落
 ├── .env.example                # ANTHROPIC_API_KEY 等環境變數
 ├── requirements.txt
-└── README.md                   # 一鍵啟動 + Demo 腳本
+├── README.md                   # 一鍵啟動 + Demo 腳本（英文，預設顯示）
+└── README.zh-TW.md             # 繁體中文版 README
 ```
 
 ---
